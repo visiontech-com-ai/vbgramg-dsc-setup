@@ -48,6 +48,12 @@ $WHITE      = "$ESC[97m"
 $BG_BLUE    = "$ESC[44m"
 $BG_BLACK   = "$ESC[40m"
 
+# --- Unicode symbols (as [char] so the source file stays pure ASCII) ---
+$SYM_CHECK  = [char]0x2713  # checkmark
+$SYM_CROSS  = [char]0x2717  # ballot X
+$SYM_RAQUO  = [char]0x00BB  # right-pointing double angle
+$SYM_SPIN   = @([char]0x280B,[char]0x2819,[char]0x2839,[char]0x2838,[char]0x283C,[char]0x2834,[char]0x2826,[char]0x2827,[char]0x2807,[char]0x280F)
+
 # --- URLs ---
 $firefoxUrl = "https://ftp.mozilla.org/pub/firefox/releases/43.0.1/win32/en-US/Firefox%20Setup%2043.0.1.exe"
 $javaUrl    = "https://cdn.azul.com/zulu/bin/zulu8.42.0.23-ca-jre8.0.232-win_i686.msi"
@@ -70,21 +76,19 @@ function Show-Banner {
     $banner = @"
 
 $BOLD$CYAN
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║                                                                  ║
-  ║     ██╗   ██╗██╗███████╗██╗ ██████╗ ███╗   ██╗                  ║
-  ║     ██║   ██║██║██╔════╝██║██╔═══██╗████╗  ██║                  ║
-  ║     ██║   ██║██║███████╗██║██║   ██║██╔██╗ ██║                  ║
-  ║     ╚██╗ ██╔╝██║╚════██║██║██║   ██║██║╚██╗██║                  ║
-  ║      ╚████╔╝ ██║███████║██║╚██████╔╝██║ ╚████║                  ║
-  ║       ╚═══╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝                  ║
-  ║                                                                  ║
-  ║$WHITE   T E C H N O L O G I E S   &   R O B O T I C S$CYAN              ║
-  ║                                                                  ║
-  ╠══════════════════════════════════════════════════════════════════╣
-  ║$YELLOW  VBGRAMG / NREGA Digital Signature Setup Tool$CYAN                 ║
-  ║$DIM  Firefox 43.0.1 + Java 8 (Zulu JRE 8u232)$CYAN                     ║
-  ╚══════════════════════════════════════════════════════════════════╝
+  +==================================================================+
+  |                                                                    |
+  |   __   __ ___  ____  ___  ___   _  _                               |
+  |   \ \ / /|_ _|/ ___||_ _|/ _ \ | \| |                              |
+  |    \ V /  | | \___ \ | || | | ||  \| |                              |
+  |     \_/  |___||____/|___||_| |_||_|\_|                              |
+  |                                                                    |
+  |$WHITE   T E C H N O L O G I E S   &   R O B O T I C S$CYAN                |
+  |                                                                    |
+  +==================================================================+
+  |$YELLOW  VBGRAMG / NREGA Digital Signature Setup Tool$CYAN                   |
+  |$DIM  Firefox 43.0.1 + Java 8 (Zulu JRE 8u232)$CYAN                       |
+  +==================================================================+
 $RESET
 "@
     Write-Host $banner
@@ -98,9 +102,9 @@ function Show-Step {
     )
     switch ($Status) {
         "running" { Write-Host "  ${CYAN}[$Number]${RESET} ${WHITE}$Text${RESET}" -NoNewline; Write-Host "" }
-        "done"    { Write-Host "  ${GREEN}[✓]${RESET} ${WHITE}$Text${RESET} ${GREEN}Done${RESET}" }
-        "skip"    { Write-Host "  ${YELLOW}[»]${RESET} ${DIM}$Text${RESET} ${YELLOW}Skipped${RESET}" }
-        "fail"    { Write-Host "  ${RED}[✗]${RESET} ${WHITE}$Text${RESET} ${RED}Failed${RESET}" }
+        "done"    { Write-Host "  ${GREEN}[$SYM_CHECK]${RESET} ${WHITE}$Text${RESET} ${GREEN}Done${RESET}" }
+        "skip"    { Write-Host "  ${YELLOW}[$SYM_RAQUO]${RESET} ${DIM}$Text${RESET} ${YELLOW}Skipped${RESET}" }
+        "fail"    { Write-Host "  ${RED}[$SYM_CROSS]${RESET} ${WHITE}$Text${RESET} ${RED}Failed${RESET}" }
     }
 }
 
@@ -109,7 +113,7 @@ function Show-Busy {
         [string]$Text,
         [System.Diagnostics.Process]$Process
     )
-    $frames = @('⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏')
+    $frames = $SYM_SPIN
     $i = 0
     while (-not $Process.HasExited) {
         $frame = $frames[$i % $frames.Count]
@@ -117,7 +121,7 @@ function Show-Busy {
         Start-Sleep -Milliseconds 120
         $i++
     }
-    Write-Host "`r      ${GREEN}✓${RESET} ${DIM}$Text${RESET}   "
+    Write-Host "`r      ${GREEN}$SYM_CHECK${RESET} ${DIM}$Text${RESET}   "
 }
 
 function Download-WithProgress {
@@ -147,7 +151,9 @@ function Download-WithProgress {
                 $pct = [math]::Round(($totalRead / $totalBytes) * 100)
                 $filled = [math]::Round(($totalRead / $totalBytes) * $progressBarWidth)
                 $empty = $progressBarWidth - $filled
-                $bar = "$GREEN" + ("█" * $filled) + "$DIM" + ("░" * $empty) + "$RESET"
+                $barFull = [string][char]0x2588
+                $barEmpty = [string][char]0x2591
+                $bar = "$GREEN" + ($barFull * $filled) + "$DIM" + ($barEmpty * $empty) + "$RESET"
                 $sizeMB = [math]::Round($totalRead / 1MB, 1)
                 $totalMB = [math]::Round($totalBytes / 1MB, 1)
                 $elapsed = $sw.Elapsed.TotalSeconds
@@ -174,35 +180,35 @@ function Download-WithProgress {
 
 function Show-Summary {
     Write-Host ""
-    Write-Host "  ${BOLD}${CYAN}╔══════════════════════════════════════════════════════════════╗${RESET}"
-    Write-Host "  ${BOLD}${CYAN}║${RESET}  ${BOLD}${WHITE}SETUP COMPLETE${RESET}                                             ${BOLD}${CYAN}║${RESET}"
-    Write-Host "  ${BOLD}${CYAN}╠══════════════════════════════════════════════════════════════╣${RESET}"
+    Write-Host "  ${BOLD}${CYAN}+============================================================+${RESET}"
+    Write-Host "  ${BOLD}${CYAN}|${RESET}  ${BOLD}${WHITE}SETUP COMPLETE${RESET}                                           ${BOLD}${CYAN}|${RESET}"
+    Write-Host "  ${BOLD}${CYAN}+============================================================+${RESET}"
 
     foreach ($key in $results.Keys | Sort-Object) {
         $val = $results[$key]
         if ($val -eq "OK") {
-            $icon = "${GREEN}✓${RESET}"
+            $icon = "${GREEN}$SYM_CHECK${RESET}"
         } elseif ($val -eq "SKIP") {
-            $icon = "${YELLOW}»${RESET}"
+            $icon = "${YELLOW}$SYM_RAQUO${RESET}"
         } else {
-            $icon = "${RED}✗${RESET}"
+            $icon = "${RED}$SYM_CROSS${RESET}"
         }
         $line = "  $icon $key"
-        $padded = $line.PadRight(70)
-        Write-Host "  ${BOLD}${CYAN}║${RESET}$padded${BOLD}${CYAN}║${RESET}"
+        $padded = $line.PadRight(68)
+        Write-Host "  ${BOLD}${CYAN}|${RESET}$padded${BOLD}${CYAN}|${RESET}"
     }
 
-    Write-Host "  ${BOLD}${CYAN}╠══════════════════════════════════════════════════════════════╣${RESET}"
-    Write-Host "  ${BOLD}${CYAN}║${RESET}  ${DIM}Setup by Vision Technologies and Robotics${RESET}                   ${BOLD}${CYAN}║${RESET}"
-    Write-Host "  ${BOLD}${CYAN}║${RESET}  ${DIM}Contact: subho@visiontech.com.in${RESET}                            ${BOLD}${CYAN}║${RESET}"
-    Write-Host "  ${BOLD}${CYAN}╚══════════════════════════════════════════════════════════════╝${RESET}"
+    Write-Host "  ${BOLD}${CYAN}+============================================================+${RESET}"
+    Write-Host "  ${BOLD}${CYAN}|${RESET}  ${DIM}Setup by Vision Technologies and Robotics${RESET}                 ${BOLD}${CYAN}|${RESET}"
+    Write-Host "  ${BOLD}${CYAN}|${RESET}  ${DIM}Contact: subho@visiontech.com.in${RESET}                          ${BOLD}${CYAN}|${RESET}"
+    Write-Host "  ${BOLD}${CYAN}+============================================================+${RESET}"
     Write-Host ""
 }
 
 function Show-SectionHeader {
     param([string]$Title)
     Write-Host ""
-    Write-Host "  ${BOLD}${MAGENTA}── $Title ──${RESET}"
+    Write-Host "  ${BOLD}${MAGENTA}-- $Title --${RESET}"
     Write-Host ""
 }
 
@@ -217,7 +223,7 @@ Show-SectionHeader "PRE-FLIGHT CHECKS"
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Write-Host "  ${RED}[✗] This script must be run as Administrator.${RESET}"
+    Write-Host "  ${RED}[$SYM_CROSS] This script must be run as Administrator.${RESET}"
     Write-Host "  ${DIM}    Please right-click setup.bat and select 'Run as administrator'.${RESET}"
     exit 1
 }
@@ -225,7 +231,7 @@ Show-Step -Number 0 -Text "Administrator privileges" -Status "done"
 
 $internet = Test-Connection -ComputerName "ftp.mozilla.org" -Count 1 -Quiet
 if (-not $internet) {
-    Write-Host "  ${RED}[✗] No internet connection. Cannot download installers.${RESET}"
+    Write-Host "  ${RED}[$SYM_CROSS] No internet connection. Cannot download installers.${RESET}"
     exit 1
 }
 Show-Step -Number 0 -Text "Internet connectivity" -Status "done"
