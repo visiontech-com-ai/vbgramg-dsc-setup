@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # VBGRAMG DSC Setup - Vision Technologies and Robotics
 # Installs Firefox 43.0.1 (32-bit) + Azul Zulu JRE 8u232 (32-bit)
 # Configures Java security and permanently disables Firefox auto-update
