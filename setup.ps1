@@ -309,25 +309,29 @@ if (Test-Path $firefoxDir) {
 
     # Layer 5: Block update servers in hosts file
     Write-Host "      ${DIM}Layer 5/5: Blocking Firefox update servers in hosts file...${RESET}"
-    $hostsFile = "C:\Windows\System32\drivers\etc\hosts"
-    $hostsContent = Get-Content $hostsFile -Raw
-    $updateHosts = @(
-        "aus4.mozilla.org",
-        "aus5.mozilla.org",
-        "aus2.mozilla.org",
-        "aus3.mozilla.org"
-    )
-    $hostsModified = $false
-    foreach ($h in $updateHosts) {
-        if ($hostsContent -notmatch [regex]::Escape($h)) {
-            Add-Content -Path $hostsFile -Value "127.0.0.1 $h"
-            $hostsModified = $true
+    try {
+        $hostsFile = "C:\Windows\System32\drivers\etc\hosts"
+        $hostsContent = Get-Content $hostsFile -Raw -ErrorAction Stop
+        $updateHosts = @(
+            "aus4.mozilla.org",
+            "aus5.mozilla.org",
+            "aus2.mozilla.org",
+            "aus3.mozilla.org"
+        )
+        $hostsModified = $false
+        foreach ($h in $updateHosts) {
+            if ($hostsContent -notmatch [regex]::Escape($h)) {
+                Add-Content -Path $hostsFile -Value "127.0.0.1 $h" -ErrorAction Stop
+                $hostsModified = $true
+            }
         }
-    }
-    if ($hostsModified) {
-        Show-Step -Number 2 -Text "Update servers blocked in hosts file" -Status "done"
-    } else {
-        Show-Step -Number 2 -Text "Update servers already blocked" -Status "skip"
+        if ($hostsModified) {
+            Show-Step -Number 2 -Text "Update servers blocked in hosts file" -Status "done"
+        } else {
+            Show-Step -Number 2 -Text "Update servers already blocked" -Status "skip"
+        }
+    } catch {
+        Show-Step -Number 2 -Text "Hosts file (locked by another process, skipped)" -Status "skip"
     }
 
     # Remove Mozilla scheduled tasks
