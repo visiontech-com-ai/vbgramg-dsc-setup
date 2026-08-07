@@ -1,4 +1,4 @@
-﻿# ============================================================================
+# ============================================================================
 # VBGRAMG DSC Setup - Vision Technologies and Robotics
 # Installs Firefox 43.0.1 (32-bit) + Azul Zulu JRE 8u232 (32-bit)
 # Configures Java security and permanently disables Firefox auto-update
@@ -229,12 +229,27 @@ if (-not $isAdmin) {
 }
 Show-Step -Number 0 -Text "Administrator privileges" -Status "done"
 
-$internet = Test-Connection -ComputerName "ftp.mozilla.org" -Count 1 -Quiet
-if (-not $internet) {
-    Write-Host "  ${RED}[$SYM_CROSS] No internet connection. Cannot download installers.${RESET}"
-    exit 1
+# Use an HTTP HEAD request instead of ICMP ping (many govt/corporate
+# networks block ping). Non-fatal: the actual downloads report their
+# own errors, so a false negative here should not stop the script.
+$internet = $false
+try {
+    $req = [System.Net.HttpWebRequest]::Create("https://ftp.mozilla.org/")
+    $req.Method = "HEAD"
+    $req.Timeout = 10000
+    $req.UserAgent = "VisionTech-Setup/1.0"
+    $resp = $req.GetResponse()
+    $resp.Close()
+    $internet = $true
+} catch {
+    # Some proxies reject HEAD but allow GET; treat any HTTP response as online
+    if ($_.Exception.Response) { $internet = $true }
 }
-Show-Step -Number 0 -Text "Internet connectivity" -Status "done"
+if ($internet) {
+    Show-Step -Number 0 -Text "Internet connectivity" -Status "done"
+} else {
+    Show-Step -Number 0 -Text "Internet check inconclusive (will try anyway)" -Status "skip"
+}
 
 # ============================================================================
 # STEP 1: Download Firefox
