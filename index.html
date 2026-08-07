@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NREGA & VBGRAMG Java + Firefox Setup - Digital Signature Tool | Vision Technologies</title>
+    <meta name="description" content="One-click setup tool for NREGA and VBGRAMG digital signature. Downloads and installs Java 8 and Firefox 43 with auto-update disabled. Free tool by Vision Technologies and Robotics.">
+    <meta name="keywords" content="nrega, nrega java, nrega digital signature, vbgramg, vbgramg java, vbgramg digital signature, nrega java setup, nrega firefox setup, java 8 for nrega, vbgramg dsc setup, nrega java firefox download, digital signature setup, nrega java install, vbgramg java install, nrega dsc, firefox for nrega">
+    <meta name="author" content="Vision Technologies and Robotics">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://visiontech.com.in/vbgramg-dsc-setup/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="NREGA & VBGRAMG Java + Firefox Setup Tool">
+    <meta property="og:description" content="One-click installer for NREGA and VBGRAMG digital signature. Installs Java 8 + Firefox 43 with updates disabled.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- Schema.org SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "VBGRAMG DSC Setup - NREGA Java Firefox Installer",
+        "description": "One-click setup tool that installs Java 8 (32-bit) and Firefox 43 (32-bit) with auto-update disabled for NREGA and VBGRAMG digital signature portals.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.0",
+        "author": {
+            "@type": "Organization",
+            "name": "Vision Technologies and Robotics",
+            "email": "subho@visiontech.com.in"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+        },
+        "downloadUrl": "https://github.com/visiontech/vbgramg-dsc-setup/archive/refs/heads/main.zip"
+    }
+    </script>
+
+    <!-- FAQPage Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Why do I need an old version of Firefox for NREGA?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "NREGA and VBGRAMG government portals use Java applets for digital signatures. Modern browsers have removed Java plugin support. Firefox 43.0.1 is one of the last versions that supports Java applets, making it necessary for digital signature operations on these portals."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is VBGRAMG and why does it need Java?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "VBGRAMG is a government portal that requires Java-based digital signature components for authentication and document signing. It needs Java 8 (32-bit) running inside a compatible browser like Firefox 43 to function properly."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is this setup tool safe to use?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. The tool downloads Firefox directly from Mozilla's official archive (ftp.mozilla.org) and Java from Azul's official CDN. Azul Zulu JRE 8u232 is a certified OpenJDK build that is functionally identical to Oracle Java 8u231. The source code is open and available on GitHub."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Why is Firefox auto-update disabled?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "If Firefox updates beyond version 43, it will lose Java applet support and NREGA/VBGRAMG digital signatures will stop working. The setup tool applies multiple layers of protection to prevent accidental updates."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I use this alongside my regular browser?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Firefox 43 installs separately and does not affect Chrome, Edge, or any other browser you have installed. Use Firefox 43 only for NREGA/VBGRAMG work and your regular browser for everything else."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I add my portal URLs to the Java exception list?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Open the exception.sites file in the setup folder with Notepad. Add your NREGA or VBGRAMG portal URLs (one per line, including http:// or https://). Save the file and re-run setup.bat to apply changes."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1e40af;
+            --accent: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #ffffff;
+            --bg-alt: #f3f4f6;
+            --bg-card: #ffffff;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #60a5fa;
+                --primary-dark: #93bbfc;
+                --accent: #fbbf24;
+                --text: #f3f4f6;
+                --text-light: #9ca3af;
+                --bg: #111827;
+                --bg-alt: #1f2937;
+                --bg-card: #1f2937;
+                --border: #374151;
+                --success: #34d399;
+                --code-bg: #0f172a;
+                --code-text: #e2e8f0;
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1a56db 100%);
+            color: white;
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .brand {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .brand-email {
+            font-size: 0.8rem;
+            opacity: 0.75;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1a56db 50%, #7c3aed 100%);
+            color: white;
+            padding: 4rem 0 3.5rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            max-width: 650px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--accent);
+            color: #1f2937;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-download svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .hero-note {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        /* Sections */
+        section {
+            padding: 3.5rem 0;
+        }
+
+        section:nth-child(even) {
+            background: var(--bg-alt);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        p + p { margin-top: 1rem; }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .step-content h3 { margin-bottom: 0.25rem; }
+        .step-content p { color: var(--text-light); font-size: 0.95rem; }
+
+        /* Features grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card h3 { color: var(--text); }
+        .feature-card p { color: var(--text-light); font-size: 0.9rem; }
+
+        /* Code block */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        /* FAQ */
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 0;
+        }
+
+        .faq-item:last-child { border-bottom: none; }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: var(--primary);
+            transition: transform 0.2s;
+        }
+
+        .faq-item.open .faq-question::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding-top: 0.75rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 2.5rem 0;
+            text-align: center;
+        }
+
+        footer .brand-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+
+        footer .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.6rem; }
+            .hero p { font-size: 1rem; }
+            .btn-download { padding: 0.85rem 1.75rem; font-size: 1rem; }
+            h2 { font-size: 1.35rem; }
+            .header-inner { justify-content: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            <div class="brand">Vision Technologies and Robotics</div>
+            <div class="brand-email">subho@visiontech.com.in</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>One-Click Setup for NREGA &amp; VBGRAMG Digital Signature</h1>
+            <p>Download and install Java 8 + Firefox 43 in one click. Pre-configured for NREGA, VBGRAMG, and other government digital signature portals. No technical knowledge needed.</p>
+
+            <div class="hero-badges">
+                <span class="badge">Java 8 (32-bit)</span>
+                <span class="badge">Firefox 43.0.1</span>
+                <span class="badge">Auto-Update Disabled</span>
+                <span class="badge">100% Free</span>
+            </div>
+
+            <a href="https://github.com/visiontech/vbgramg-dsc-setup/archive/refs/heads/main.zip" class="btn-download">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+                Download Setup Tool
+            </a>
+
+            <p class="hero-note">Works on Windows 10 and Windows 11 — just double-click to run</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>What Does This Tool Do?</h2>
+            <p>Many Indian government portals like <strong>NREGA</strong> (nrega.nic.in) and <strong>VBGRAMG</strong> require <strong>Java applets</strong> for digital signatures. Modern browsers like Chrome and Edge have dropped Java support entirely. This tool solves the problem by installing the exact versions of Java and Firefox that work with these portals.</p>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">&#9749;</div>
+                    <h3>Java 8 JRE (32-bit)</h3>
+                    <p>Installs Azul Zulu JRE 8u232 — a certified, free, open-source Java runtime identical to Oracle Java 8u231. Pre-configured with relaxed security for government portals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#127760;</div>
+                    <h3>Firefox 43.0.1 (32-bit)</h3>
+                    <p>The last Firefox version with full Java applet support. Downloaded directly from Mozilla's official archive. Auto-update is permanently disabled through 5 independent methods.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128274;</div>
+                    <h3>Update Protection</h3>
+                    <p>Firefox auto-update is locked down with 5 layers: config lock, service disable, updater removal, host blocking, and task cleanup. Your setup stays intact.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9889;</div>
+                    <h3>One-Click Install</h3>
+                    <p>Just double-click setup.bat. No technical knowledge required. The script handles admin elevation, downloading, installing, and configuring everything automatically.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>How to Use — NREGA &amp; VBGRAMG Java Firefox Setup</h2>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Download the Setup Tool</h3>
+                        <p>Click the download button above or visit the GitHub repository. Extract the ZIP file to any folder on your computer.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Double-Click setup.bat</h3>
+                        <p>Simply double-click the <code>setup.bat</code> file. Windows will ask for administrator permission — click "Yes". The setup will begin automatically with a progress display.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Wait for Setup to Complete</h3>
+                        <p>The tool will download Firefox 43.0.1 and Java 8, install them silently, configure security settings, and disable Firefox auto-update. This takes 2-5 minutes depending on your internet speed.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Open Firefox and Use Your Portal</h3>
+                        <p>Launch Firefox 43 from the desktop shortcut or Start Menu. Navigate to your NREGA or VBGRAMG portal and use the digital signature feature as usual.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>System Requirements</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0;"><strong>OS:</strong> Windows 10 or Windows 11 (32-bit or 64-bit)</li>
+                <li style="padding: 0.5rem 0;"><strong>Internet:</strong> Required for first-time download (approx. 100 MB total)</li>
+                <li style="padding: 0.5rem 0;"><strong>Disk Space:</strong> ~300 MB free</li>
+                <li style="padding: 0.5rem 0;"><strong>Other:</strong> No other software needed. Works alongside Chrome, Edge, or any other browser.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>Frequently Asked Questions — NREGA VBGRAMG Digital Signature</h2>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    Why do I need an old version of Firefox for NREGA digital signature?
+                </div>
+                <div class="faq-answer">
+                    NREGA and VBGRAMG government portals use Java applets for digital signatures. Starting from 2017, all modern browsers (Chrome, Edge, Firefox 52+) removed support for Java plugins (NPAPI). Firefox 43.0.1 is one of the last stable versions that fully supports Java applets, making it necessary for digital signature operations on these portals.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    What is VBGRAMG and why does it need Java?
+                </div>
+                <div class="faq-answer">
+                    VBGRAMG is a government portal used for various administrative functions. It uses Java-based digital signature components for secure authentication and document signing. These components require Java 8 (32-bit) running inside a compatible browser to function correctly.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    Is this tool safe to use?
+                </div>
+                <div class="faq-answer">
+                    Yes. Firefox is downloaded directly from Mozilla's official archive server (ftp.mozilla.org). Java is downloaded from Azul Systems' official CDN — Azul Zulu JRE 8u232 is a certified, open-source Java build that is functionally identical to Oracle Java 8u231. The entire setup script source code is open and available on GitHub for inspection.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    Why is Firefox auto-update disabled?
+                </div>
+                <div class="faq-answer">
+                    If Firefox updates to a newer version, it will permanently lose Java applet support. This means your NREGA/VBGRAMG digital signatures will stop working. The setup tool applies 5 independent protection layers to ensure Firefox stays at version 43.0.1 and never auto-updates.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    Can I use this alongside my regular browser?
+                </div>
+                <div class="faq-answer">
+                    Absolutely. Firefox 43 installs to its own folder and does not interfere with Chrome, Microsoft Edge, or any other browser. We recommend using Firefox 43 exclusively for NREGA/VBGRAMG digital signature work, and your regular browser for all other internet browsing.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    How do I add my portal URLs to the Java exception site list?
+                </div>
+                <div class="faq-answer">
+                    Open the <code>exception.sites</code> file in the setup folder using Notepad. Add your NREGA or VBGRAMG portal URLs, one per line (include http:// or https://). Save the file and run setup.bat again to apply the updated list. Common URLs like nrega.nic.in are pre-filled.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                    Why Azul Zulu Java instead of Oracle Java?
+                </div>
+                <div class="faq-answer">
+                    Since April 2019, Oracle Java 8u211 and later requires a paid license for commercial/government use. Azul Zulu JRE 8u232 is a free, open-source alternative built from the same OpenJDK source code. It is functionally identical and fully compatible with all Java applications, including NREGA and VBGRAMG digital signature applets.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>Troubleshooting NREGA Java Firefox Issues</h2>
+
+            <h3>Java applet not loading in Firefox</h3>
+            <p>Make sure you are using the installed Firefox 43, not a different version. Check that Java is enabled: type <code>about:addons</code> in Firefox's address bar, go to Plugins, and ensure "Java(TM) Platform" is set to "Always Activate".</p>
+
+            <h3>Digital signature popup not appearing</h3>
+            <p>Your portal URL may need to be added to the Java exception site list. Open <code>exception.sites</code> in the setup folder, add the portal URL, and re-run setup.bat.</p>
+
+            <h3>Windows SmartScreen warning</h3>
+            <p>When you first run setup.bat, Windows may show a SmartScreen warning because the file was downloaded from the internet. Click "More info" and then "Run anyway". This is normal for downloaded scripts.</p>
+
+            <h3>"Java is not recognized" error</h3>
+            <p>Re-run setup.bat to reinstall Java. If the issue persists, restart your computer after installation.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="brand-name">Vision Technologies and Robotics</div>
+            <p><a href="mailto:subho@visiontech.com.in">subho@visiontech.com.in</a></p>
+            <div class="footer-links">
+                <a href="https://github.com/visiontech/vbgramg-dsc-setup">GitHub Repository</a>
+                <a href="https://github.com/visiontech/vbgramg-dsc-setup/issues">Report an Issue</a>
+                <a href="https://github.com/visiontech/vbgramg-dsc-setup/archive/refs/heads/main.zip">Download</a>
+            </div>
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.6;">
+                NREGA, VBGRAMG, and associated government portal names are property of the Government of India.
+                This tool is an independent utility and is not affiliated with or endorsed by any government body.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
