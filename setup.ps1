@@ -1,6 +1,6 @@
 # ============================================================================
 # VBGRAMG DSC Setup - Vision Technologies and Robotics
-# Installs Firefox 43.0.1 (32-bit) + Azul Zulu JRE 8u232 (32-bit)
+# Installs Firefox 43.0.1 (32-bit) + Oracle JRE 8 (32-bit)
 # Configures Java security and permanently disables Firefox auto-update
 # ============================================================================
 
@@ -56,13 +56,19 @@ $SYM_SPIN   = @([char]0x280B,[char]0x2819,[char]0x2839,[char]0x2838,[char]0x283C
 
 # --- URLs ---
 $firefoxUrl = "https://ftp.mozilla.org/pub/firefox/releases/43.0.1/win32/en-US/Firefox%20Setup%2043.0.1.exe"
-$javaUrl    = "https://cdn.azul.com/zulu/bin/zulu8.42.0.23-ca-jre8.0.232-win_i686.msi"
+# Oracle Java 8 (32-bit) is required because ONLY Oracle's JRE ships the
+# browser applet plugin (npjp2.dll) that NREGA/VBGRAMG digital-signature
+# applets need. Open-source builds (Zulu, Temurin, etc.) omit it.
+# The 32-bit offline installer is resolved live from Oracle's public
+# java.com download endpoint (no login required) in Get-OracleJreUrl.
+$javaManualPage = "https://www.java.com/en/download/manual.jsp"
 
 # --- Paths ---
 $firefoxInstaller = Join-Path $env:TEMP "FirefoxSetup-43.0.1.exe"
-$javaInstaller    = Join-Path $env:TEMP "zulu-jre-8u232-win32.msi"
+$javaInstaller    = Join-Path $env:TEMP "oracle-jre8-win-i586.exe"
 $firefoxDir       = "C:\Program Files (x86)\Mozilla Firefox"
-$javaDir          = "C:\Program Files (x86)\Zulu\zulu-8-jre"
+# Oracle installs to C:\Program Files (x86)\Java\jre1.8.0_XXX (version varies)
+$javaRoot         = "C:\Program Files (x86)\Java"
 
 # --- Results tracking ---
 $results = @{}
@@ -87,7 +93,7 @@ $BOLD$CYAN
   |                                                                    |
   +==================================================================+
   |$YELLOW  VBGRAMG / NREGA Digital Signature Setup Tool$CYAN                   |
-  |$DIM  Firefox 43.0.1 + Java 8 (Zulu JRE 8u232)$CYAN                       |
+  |$DIM  Firefox 43.0.1 + Oracle Java 8 (32-bit)$CYAN                        |
   +==================================================================+
 $RESET
 "@
@@ -176,6 +182,78 @@ function Download-WithProgress {
         Write-Host "      ${RED}Download failed: $($_.Exception.Message)${RESET}"
         return $false
     }
+}
+
+function Get-OracleJreUrl {
+    # Resolves the current Oracle Java 8 "Windows Offline (32-bit)" installer
+    # URL from java.com. No Oracle login required. Returns $null on failure.
+    try {
+        $page = Invoke-WebRequest $javaManualPage -UseBasicParsing -TimeoutSec 30
+        $ids = @()
+        foreach ($m in [regex]::Matches($page.Content, 'AutoDL\?BundleId=\d+_[a-f0-9]+')) {
+            $u = "https://javadl.oracle.com/webapps/download/" + $m.Value
+            if ($ids -notcontains $u) { $ids += $u }
+        }
+        foreach ($u in $ids) {
+            $req = [System.Net.HttpWebRequest]::Create($u)
+            $req.UserAgent = "Mozilla/5.0"
+            $req.AllowAutoRedirect = $false
+            $req.Timeout = 30000
+            $resp = $req.GetResponse()
+            $loc = $resp.Headers["Location"]
+            $resp.Close()
+            # The 32-bit offline installer file name is jre-8uNNN-windows-i586.exe
+            # (exclude the online "-iftw" stub and the x64 build).
+            if ($loc -and $loc -match 'jre-8u\d+-windows-i586\.exe' -and $loc -notmatch 'iftw') {
+                return $u
+            }
+        }
+    } catch {}
+    return $null
+}
+
+function Install-OracleJre {
+    # Oracle's .exe wrapper is unreliable in silent/automated sessions (it can
+    # extract the MSI, delete it, and exit 3 without installing). The robust
+    # method is to grab the MSI it stages and run it via msiexec directly.
+    param([string]$Installer)
+
+    $lowRoot = Join-Path ([Environment]::GetFolderPath('UserProfile')) 'AppData\LocalLow\Oracle\Java'
+    $msiDest = Join-Path $env:TEMP 'oracle-jre-msi'
+    if (Test-Path $msiDest) { Remove-Item $msiDest -Recurse -Force -ErrorAction SilentlyContinue }
+    New-Item -ItemType Directory -Path $msiDest -Force | Out-Null
+
+    # Launch the wrapper; race to copy the staged MSI out before it is deleted.
+    $proc = Start-Process -FilePath $Installer -ArgumentList @('/s') -PassThru
+    $msiPath = $null
+    for ($i = 0; $i -lt 900; $i++) {
+        if (Test-Path $lowRoot) {
+            $msi = Get-ChildItem $lowRoot -Recurse -Filter '*.msi' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($msi) {
+                try {
+                    $dst = Join-Path $msiDest $msi.Name
+                    Copy-Item $msi.FullName $dst -Force -ErrorAction Stop
+                    $msiPath = $dst
+                    break
+                } catch { }
+            }
+        }
+        if ($proc.HasExited -and -not (Test-Path $lowRoot)) { break }
+        Start-Sleep -Milliseconds 100
+    }
+    try { if (-not $proc.HasExited) { $proc.WaitForExit(60000) | Out-Null } } catch {}
+
+    if (-not $msiPath) { return $false }
+
+    # Install the MSI: enable the browser plugin, disable auto-update.
+    $msiLog = Join-Path $env:TEMP 'oracle-jre-msiexec.log'
+    $mArgs = @(
+        '/i', "`"$msiPath`"", '/qn', '/norestart', '/l*v', "`"$msiLog`"",
+        'WEB_JAVA=1', 'WEB_JAVA_SECURITY_LEVEL=H',
+        'JAVAUPDATE=0', 'JU=0', 'AUTOUPDATECHECK=0', 'SPONSORS=0', 'NOSTARTMENU=1'
+    )
+    $mi = Start-Process -FilePath 'msiexec.exe' -ArgumentList $mArgs -Wait -PassThru
+    return ($mi.ExitCode -eq 0)
 }
 
 function Show-Summary {
@@ -371,32 +449,40 @@ if (Test-Path $firefoxDir) {
 }
 
 # ============================================================================
-# STEP 3: Download & Install Java
+# STEP 3: Download & Install Java (Oracle JRE 8, 32-bit - ships applet plugin)
 # ============================================================================
-Show-SectionHeader "STEP 3: JAVA 8 (AZUL ZULU JRE 8u232, 32-BIT)"
+Show-SectionHeader "STEP 3: JAVA 8 (ORACLE JRE, 32-BIT)"
 
-$javaExists = Test-Path (Join-Path $javaDir "bin\java.exe")
-if ($javaExists) {
-    Show-Step -Number 3 -Text "Azul Zulu JRE 8u232 already installed" -Status "skip"
-    $results["Java 8 (Zulu 8u232) Install"] = "SKIP"
+# Detect an existing Oracle JRE 8 with the browser plugin already registered.
+$existingPlugin = $null
+if (Test-Path $javaRoot) {
+    $existingPlugin = Get-ChildItem $javaRoot -Recurse -Filter "npjp2.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
+}
+if ($existingPlugin) {
+    Show-Step -Number 3 -Text "Oracle Java 8 (with browser plugin) already installed" -Status "skip"
+    $results["Java 8 (Oracle) Install"] = "SKIP"
 } else {
-    Show-Step -Number 3 -Text "Downloading Azul Zulu JRE 8u232..." -Status "running"
-    $dlResult = Download-WithProgress -Url $javaUrl -OutFile $javaInstaller -DisplayName "Azul Zulu JRE 8u232"
-
-    if ($dlResult) {
-        $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$javaInstaller`" /quiet /norestart INSTALLDIR=`"$javaDir`"" -PassThru
-        Show-Busy -Text "Installing Java silently (this may take a minute)..." -Process $proc
-        $proc.WaitForExit()
-        if ($proc.ExitCode -eq 0) {
-            Show-Step -Number 3 -Text "Azul Zulu JRE 8u232 installed" -Status "done"
-            $results["Java 8 (Zulu 8u232) Install"] = "OK"
-        } else {
-            Show-Step -Number 3 -Text "Java installation (exit code: $($proc.ExitCode))" -Status "fail"
-            $results["Java 8 (Zulu 8u232) Install"] = "FAIL"
-        }
+    Show-Step -Number 3 -Text "Locating Oracle Java 8 (32-bit) download..." -Status "running"
+    $javaUrl = Get-OracleJreUrl
+    if (-not $javaUrl) {
+        Show-Step -Number 3 -Text "Could not resolve Oracle Java download URL" -Status "fail"
+        $results["Java 8 (Oracle) Install"] = "FAIL"
     } else {
-        Show-Step -Number 3 -Text "Java download" -Status "fail"
-        $results["Java 8 (Zulu 8u232) Install"] = "FAIL"
+        $dlResult = Download-WithProgress -Url $javaUrl -OutFile $javaInstaller -DisplayName "Oracle Java 8 (32-bit)"
+        if ($dlResult) {
+            Write-Host "      ${DIM}Installing Oracle Java 8 silently (this may take a minute)...${RESET}"
+            $ok = Install-OracleJre -Installer $javaInstaller
+            if ($ok) {
+                Show-Step -Number 3 -Text "Oracle Java 8 installed (with browser plugin)" -Status "done"
+                $results["Java 8 (Oracle) Install"] = "OK"
+            } else {
+                Show-Step -Number 3 -Text "Oracle Java installation failed" -Status "fail"
+                $results["Java 8 (Oracle) Install"] = "FAIL"
+            }
+        } else {
+            Show-Step -Number 3 -Text "Java download" -Status "fail"
+            $results["Java 8 (Oracle) Install"] = "FAIL"
+        }
     }
 }
 

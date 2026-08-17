@@ -15,18 +15,17 @@ Indian government portals like **NREGA** (nrega.nic.in) and **VBGRAMG** use Java
 | Software | Version | Source |
 |----------|---------|--------|
 | Firefox | 43.0.1 (32-bit) | [Mozilla Official Archive](https://ftp.mozilla.org/pub/firefox/releases/43.0.1/win32/en-US/) |
-| Java 8 JRE | Azul Zulu 8u232 (32-bit) | [Azul CDN](https://www.azul.com/downloads/) |
+| Java 8 JRE | Oracle Java 8 (32-bit) | [Oracle java.com](https://www.java.com/en/download/manual.jsp) |
 
-> **Why Azul Zulu instead of Oracle Java?** Oracle Java 8u211+ requires a paid license. Azul Zulu is a free, open-source build from the same OpenJDK source code — fully compatible with NREGA/VBGRAMG applets.
+> **Why Oracle Java and not a free open-source build?** NREGA/VBGRAMG use a Java **browser applet** for signing, which needs the Java browser plugin (`npjp2.dll`). Only Oracle's Java 8 ships this plugin — open-source builds (Azul Zulu, Temurin, Corretto) include the Java engine but omit the browser plugin, so applets will not load. The tool downloads the 32-bit Oracle JRE directly from Oracle's official java.com server (no login needed) and installs it with the plugin enabled.
 
 ## How to Use
 
-1. **Download** this repository as a ZIP (click the green "Code" button → "Download ZIP")
-2. **Extract** the ZIP file to any folder
-3. **Double-click** `setup.bat`
-4. **Click "Yes"** on the Windows permission prompt
-5. **Wait** for the setup to complete (2-5 minutes)
-6. **Open Firefox 43** from the desktop shortcut and navigate to your portal
+1. **Download** `setup.bat` from the [latest release](https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat) (single file, no ZIP)
+2. **Double-click** `setup.bat`
+3. **Click "Yes"** on the Windows permission prompt
+4. **Wait** for the setup to complete (2-5 minutes) — it downloads everything it needs
+5. **Open Firefox 43** from the desktop shortcut and navigate to your portal
 
 That's it. No command line, no technical knowledge needed.
 
@@ -41,8 +40,9 @@ That's it. No command line, no technical knowledge needed.
   4. Blocks Firefox update servers in the Windows hosts file
   5. Removes Mozilla scheduled update tasks
 
-### Java 8 (Azul Zulu JRE 8u232)
-- Downloads and installs Azul Zulu JRE 8u232 (32-bit) silently
+### Java 8 (Oracle JRE, 32-bit)
+- Downloads the current Oracle Java 8 (32-bit) offline installer directly from Oracle's official java.com server
+- Installs it silently **with the browser applet plugin enabled** (`WEB_JAVA=1`) so the signing applet loads in Firefox
 - Configures Java security: sets security level to HIGH with relaxed checks for government portals
 - Deploys the exception site list (edit `exception.sites` to add your portal URLs)
 - Disables Java auto-update via registry and scheduled tasks

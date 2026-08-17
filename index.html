@@ -68,7 +68,7 @@
                 "name": "Is this setup tool safe to use?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes. The tool downloads Firefox directly from Mozilla's official archive (ftp.mozilla.org) and Java from Azul's official CDN. Azul Zulu JRE 8u232 is a certified OpenJDK build that is functionally identical to Oracle Java 8u231. The source code is open and available on GitHub."
+                    "text": "Yes. The tool downloads Firefox directly from Mozilla's official archive (ftp.mozilla.org) and Java directly from Oracle's official java.com download server. Oracle Java 8 is required because it is the only Java build that includes the browser plugin needed by NREGA and VBGRAMG signing applets. The source code is open and available on GitHub."
                 }
             },
             {
@@ -489,7 +489,7 @@
                 <div class="feature-card">
                     <div class="feature-icon">&#9749;</div>
                     <h3 data-i18n="card1.h3">Java 8 JRE (32-bit)</h3>
-                    <p data-i18n="card1.p">Installs Azul Zulu JRE 8u232 — a certified, free, open-source Java runtime identical to Oracle Java 8u231. Pre-configured with relaxed security for government portals.</p>
+                    <p data-i18n="card1.p">Installs Oracle Java 8 (32-bit) — the official Java runtime that includes the browser plugin required by NREGA/VBGRAMG signing applets. Downloaded straight from Oracle and pre-configured with relaxed security for government portals.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">&#127760;</div>
@@ -586,7 +586,7 @@
                     Is this tool safe to use?
                 </div>
                 <div class="faq-answer" data-i18n="faq3.a">
-                    Yes. Firefox is downloaded directly from Mozilla's official archive server (ftp.mozilla.org). Java is downloaded from Azul Systems' official CDN — Azul Zulu JRE 8u232 is a certified, open-source Java build that is functionally identical to Oracle Java 8u231. The entire setup script source code is open and available on GitHub for inspection.
+                    Yes. Firefox is downloaded directly from Mozilla's official archive server (ftp.mozilla.org). Java is downloaded directly from Oracle's official java.com download server — no third-party mirrors. Oracle Java 8 is used because it is the only Java build that includes the browser applet plugin these portals need. The entire setup script source code is open and available on GitHub for inspection.
                 </div>
             </div>
 
@@ -619,10 +619,10 @@
 
             <div class="faq-item">
                 <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq7.q">
-                    Why Azul Zulu Java instead of Oracle Java?
+                    Why Oracle Java and not a free open-source Java?
                 </div>
                 <div class="faq-answer" data-i18n="faq7.a">
-                    Since April 2019, Oracle Java 8u211 and later requires a paid license for commercial/government use. Azul Zulu JRE 8u232 is a free, open-source alternative built from the same OpenJDK source code. It is functionally identical and fully compatible with all Java applications, including NREGA and VBGRAMG digital signature applets.
+                    These portals need the Java browser plugin (an applet plugin that runs inside Firefox). Only Oracle's Java 8 includes this plugin — free open-source builds like Azul Zulu, Temurin, or Corretto ship the Java engine but leave out the browser plugin, so applets simply will not load. That is why Oracle Java 8 (32-bit) is required. The tool downloads it directly from Oracle's official java.com server, free of charge for this use.
                 </div>
             </div>
         </div>
@@ -679,7 +679,7 @@
             "what.p": "<strong>NREGA</strong> (nrega.nic.in) এবং <strong>VBGRAMG</strong>-এর মতো অনেক ভারতীয় সরকারি পোর্টাল ডিজিটাল স্বাক্ষরের জন্য <strong>Java অ্যাপলেট</strong> ব্যবহার করে। Chrome ও Edge-এর মতো আধুনিক ব্রাউজার Java সমর্থন সম্পূর্ণ বন্ধ করে দিয়েছে। এই টুলটি এই পোর্টালগুলির সাথে কাজ করে এমন সঠিক সংস্করণের Java ও Firefox ইনস্টল করে সমস্যাটি সমাধান করে।",
 
             "card1.h3": "Java 8 JRE (৩২-বিট)",
-            "card1.p": "Azul Zulu JRE 8u232 ইনস্টল করে — একটি প্রত্যয়িত, বিনামূল্যের, ওপেন-সোর্স Java রানটাইম যা Oracle Java 8u231-এর অভিন্ন। সরকারি পোর্টালের জন্য শিথিল নিরাপত্তা সহ পূর্ব-কনফিগার করা।",
+            "card1.p": "Oracle Java 8 (৩২-বিট) ইনস্টল করে — অফিসিয়াল Java রানটাইম যাতে NREGA/VBGRAMG স্বাক্ষর অ্যাপলেটের জন্য প্রয়োজনীয় ব্রাউজার প্লাগইন অন্তর্ভুক্ত থাকে। সরাসরি Oracle থেকে ডাউনলোড করা এবং সরকারি পোর্টালের জন্য শিথিল নিরাপত্তা সহ পূর্ব-কনফিগার করা।",
             "card2.h3": "Firefox 43.0.1 (৩২-বিট)",
             "card2.p": "সম্পূর্ণ Java অ্যাপলেট সমর্থন সহ শেষ Firefox সংস্করণ। সরাসরি Mozilla-র অফিসিয়াল আর্কাইভ থেকে ডাউনলোড করা। ৫টি স্বতন্ত্র পদ্ধতিতে অটো-আপডেট স্থায়ীভাবে বন্ধ।",
             "card3.h3": "আপডেট সুরক্ষা",
@@ -709,15 +709,15 @@
             "faq2.q": "VBGRAMG কী এবং এর কেন Java প্রয়োজন?",
             "faq2.a": "VBGRAMG একটি সরকারি পোর্টাল যা বিভিন্ন প্রশাসনিক কাজে ব্যবহৃত হয়। এটি নিরাপদ প্রমাণীকরণ ও নথি স্বাক্ষরের জন্য Java-ভিত্তিক ডিজিটাল স্বাক্ষর উপাদান ব্যবহার করে। এই উপাদানগুলি সঠিকভাবে কাজ করার জন্য একটি সামঞ্জস্যপূর্ণ ব্রাউজারে Java 8 (৩২-বিট) চালানো প্রয়োজন।",
             "faq3.q": "এই টুলটি ব্যবহার করা কি নিরাপদ?",
-            "faq3.a": "হ্যাঁ। Firefox সরাসরি Mozilla-র অফিসিয়াল আর্কাইভ সার্ভার (ftp.mozilla.org) থেকে ডাউনলোড করা হয়। Java, Azul Systems-এর অফিসিয়াল CDN থেকে ডাউনলোড করা হয় — Azul Zulu JRE 8u232 একটি প্রত্যয়িত, ওপেন-সোর্স Java বিল্ড যা Oracle Java 8u231-এর কার্যকরীভাবে অভিন্ন। সম্পূর্ণ সেটআপ স্ক্রিপ্টের সোর্স কোড GitHub-এ পরিদর্শনের জন্য উন্মুক্ত।",
+            "faq3.a": "হ্যাঁ। Firefox সরাসরি Mozilla-র অফিসিয়াল আর্কাইভ সার্ভার (ftp.mozilla.org) থেকে ডাউনলোড করা হয়। Java সরাসরি Oracle-এর অফিসিয়াল java.com ডাউনলোড সার্ভার থেকে ডাউনলোড করা হয় — কোনো তৃতীয়-পক্ষের মিরর নয়। Oracle Java 8 ব্যবহার করা হয় কারণ এটিই একমাত্র Java বিল্ড যাতে এই পোর্টালগুলির প্রয়োজনীয় ব্রাউজার অ্যাপলেট প্লাগইন থাকে। সম্পূর্ণ সেটআপ স্ক্রিপ্টের সোর্স কোড GitHub-এ পরিদর্শনের জন্য উন্মুক্ত।",
             "faq4.q": "Firefox অটো-আপডেট কেন বন্ধ করা হয়েছে?",
             "faq4.a": "Firefox যদি নতুন সংস্করণে আপডেট হয়, তবে এটি স্থায়ীভাবে Java অ্যাপলেট সমর্থন হারাবে। এর মানে আপনার NREGA/VBGRAMG ডিজিটাল স্বাক্ষর কাজ করা বন্ধ করে দেবে। Firefox যাতে সংস্করণ 43.0.1-এ থাকে এবং কখনও অটো-আপডেট না হয় তা নিশ্চিত করতে সেটআপ টুলটি ৫টি স্বতন্ত্র সুরক্ষা স্তর প্রয়োগ করে।",
             "faq5.q": "আমি কি আমার নিয়মিত ব্রাউজারের পাশাপাশি এটি ব্যবহার করতে পারি?",
             "faq5.a": "অবশ্যই। Firefox 43 তার নিজস্ব ফোল্ডারে ইনস্টল হয় এবং Chrome, Microsoft Edge বা অন্য কোনো ব্রাউজারে হস্তক্ষেপ করে না। আমরা NREGA/VBGRAMG ডিজিটাল স্বাক্ষরের কাজের জন্য শুধুমাত্র Firefox 43 এবং অন্য সব ইন্টারনেট ব্রাউজিংয়ের জন্য আপনার নিয়মিত ব্রাউজার ব্যবহারের পরামর্শ দিই।",
             "faq6.q": "আমি কীভাবে Java এক্সসেপশন সাইট তালিকায় আমার পোর্টাল URL যোগ করব?",
             "faq6.a": "সেটআপ ফোল্ডারের <code>exception.sites</code> ফাইলটি Notepad দিয়ে খুলুন। আপনার NREGA বা VBGRAMG পোর্টাল URL প্রতি লাইনে একটি করে যোগ করুন (http:// বা https:// সহ)। ফাইলটি সংরক্ষণ করুন এবং আপডেট করা তালিকা প্রয়োগ করতে আবার setup.bat চালান। nrega.nic.in-এর মতো সাধারণ URL আগে থেকে পূরণ করা আছে।",
-            "faq7.q": "Oracle Java-র পরিবর্তে Azul Zulu Java কেন?",
-            "faq7.a": "২০১৯ সালের এপ্রিল থেকে Oracle Java 8u211 এবং পরবর্তী সংস্করণে বাণিজ্যিক/সরকারি ব্যবহারের জন্য একটি অর্থপ্রদত্ত লাইসেন্স প্রয়োজন। Azul Zulu JRE 8u232 একই OpenJDK সোর্স কোড থেকে তৈরি একটি বিনামূল্যের, ওপেন-সোর্স বিকল্প। এটি কার্যকরীভাবে অভিন্ন এবং NREGA ও VBGRAMG ডিজিটাল স্বাক্ষর অ্যাপলেট সহ সমস্ত Java অ্যাপ্লিকেশনের সাথে সম্পূর্ণ সামঞ্জস্যপূর্ণ।",
+            "faq7.q": "ওপেন-সোর্স Java নয়, Oracle Java কেন?",
+            "faq7.a": "এই পোর্টালগুলির Java ব্রাউজার প্লাগইন (Firefox-এর ভিতরে চলা অ্যাপলেট প্লাগইন) প্রয়োজন। শুধুমাত্র Oracle-এর Java 8-এ এই প্লাগইন অন্তর্ভুক্ত — Azul Zulu, Temurin বা Corretto-র মতো বিনামূল্যের ওপেন-সোর্স বিল্ডে Java ইঞ্জিন থাকলেও ব্রাউজার প্লাগইন বাদ দেওয়া হয়, ফলে অ্যাপলেট লোড হয় না। তাই Oracle Java 8 (৩২-বিট) প্রয়োজন। টুলটি এটি সরাসরি Oracle-এর অফিসিয়াল java.com সার্ভার থেকে বিনামূল্যে ডাউনলোড করে।",
 
             "trouble.h2": "NREGA Java Firefox সমস্যা সমাধান",
             "trouble1.h3": "Firefox-এ Java অ্যাপলেট লোড হচ্ছে না",
