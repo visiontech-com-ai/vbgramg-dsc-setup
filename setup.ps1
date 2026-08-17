@@ -461,25 +461,57 @@ if (Test-Path $firefoxDir) {
         }
     } catch {}
 
-    # Create a dedicated desktop shortcut that ALWAYS launches Firefox 43 with
-    # its own isolated profile (-no-remote -profile). This guarantees the portal
-    # opens in Firefox 43 (not a newer Firefox that lacks Java support) and gives
-    # a clean profile that scans and loads the Java plugin every time.
-    Write-Host "      ${DIM}Creating 'VBGRAMG DSC Signing' desktop shortcut...${RESET}"
+    # Create a launcher + desktop shortcut. Firefox 43's registry-based plugin
+    # detection can fail to surface the Java plugin, so the launcher sets
+    # MOZ_PLUGIN_PATH to point Firefox directly at the Oracle Java plugin folder
+    # (the reliable discovery mechanism), then opens Firefox 43 in its own
+    # isolated profile with -no-remote (so it can't get hijacked into a newer
+    # Firefox that lacks Java support).
+    Write-Host "      ${DIM}Creating launcher + 'VBGRAMG DSC Signing' desktop shortcut...${RESET}"
     try {
         $dscProfile = Join-Path $env:LOCALAPPDATA "VBGRAMG-DSC-FF43"
         if (-not (Test-Path $dscProfile)) { New-Item -ItemType Directory -Path $dscProfile -Force | Out-Null }
+
+        $launchDir = Join-Path $env:LOCALAPPDATA "VBGRAMG-DSC"
+        if (-not (Test-Path $launchDir)) { New-Item -ItemType Directory -Path $launchDir -Force | Out-Null }
+        $launcher = Join-Path $launchDir "open-portal.cmd"
+
+        $ffExe = Join-Path $firefoxDir "firefox.exe"
+        $launcherBody = @"
+@echo off
+setlocal EnableExtensions
+set "FF=$ffExe"
+set "PLUGDIR="
+for /d %%D in ("C:\Program Files (x86)\Java\jre*") do (
+    if exist "%%D\bin\plugin2\npjp2.dll" set "PLUGDIR=%%D\bin\plugin2"
+)
+if defined PLUGDIR set "MOZ_PLUGIN_PATH=%PLUGDIR%"
+start "" "%FF%" -no-remote -profile "$dscProfile"
+"@
+        Set-Content -Path $launcher -Value $launcherBody -Encoding ASCII
+
+        # Also set MOZ_PLUGIN_PATH machine-wide as a belt-and-suspenders. Harmless
+        # for modern Firefox (it ignores NPAPI); helps any Firefox 43 launch.
+        $pluginDir = $null
+        if (Test-Path $javaRoot) {
+            $np = Get-ChildItem $javaRoot -Recurse -Filter "npjp2.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($np) { $pluginDir = Split-Path $np.FullName -Parent }
+        }
+        if ($pluginDir) {
+            try { [Environment]::SetEnvironmentVariable("MOZ_PLUGIN_PATH", $pluginDir, "Machine") } catch {}
+        }
+
         $desktop = [Environment]::GetFolderPath('Desktop')
         $lnkPath = Join-Path $desktop "VBGRAMG DSC Signing (Firefox 43).lnk"
         $wsh = New-Object -ComObject WScript.Shell
         $sc = $wsh.CreateShortcut($lnkPath)
-        $sc.TargetPath = Join-Path $firefoxDir "firefox.exe"
-        $sc.Arguments = "-no-remote -profile `"$dscProfile`""
-        $sc.WorkingDirectory = $firefoxDir
-        $sc.IconLocation = (Join-Path $firefoxDir "firefox.exe") + ",0"
+        $sc.TargetPath = $launcher
+        $sc.WorkingDirectory = $launchDir
+        $sc.IconLocation = "$ffExe,0"
+        $sc.WindowStyle = 7   # minimized, so the brief cmd window barely shows
         $sc.Description = "Opens NREGA/VBGRAMG portals in Firefox 43 with Java digital signature support"
         $sc.Save()
-        Show-Step -Number 2 -Text "Desktop shortcut 'VBGRAMG DSC Signing (Firefox 43)' created" -Status "done"
+        Show-Step -Number 2 -Text "Launcher + desktop shortcut 'VBGRAMG DSC Signing (Firefox 43)' created" -Status "done"
     } catch {
         Show-Step -Number 2 -Text "Desktop shortcut (could not create, skipped)" -Status "skip"
     }
