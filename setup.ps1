@@ -456,6 +456,29 @@ if (Test-Path $firefoxDir) {
         }
     } catch {}
 
+    # Create a dedicated desktop shortcut that ALWAYS launches Firefox 43 with
+    # its own isolated profile (-no-remote -profile). This guarantees the portal
+    # opens in Firefox 43 (not a newer Firefox that lacks Java support) and gives
+    # a clean profile that scans and loads the Java plugin every time.
+    Write-Host "      ${DIM}Creating 'VBGRAMG DSC Signing' desktop shortcut...${RESET}"
+    try {
+        $dscProfile = Join-Path $env:LOCALAPPDATA "VBGRAMG-DSC-FF43"
+        if (-not (Test-Path $dscProfile)) { New-Item -ItemType Directory -Path $dscProfile -Force | Out-Null }
+        $desktop = [Environment]::GetFolderPath('Desktop')
+        $lnkPath = Join-Path $desktop "VBGRAMG DSC Signing (Firefox 43).lnk"
+        $wsh = New-Object -ComObject WScript.Shell
+        $sc = $wsh.CreateShortcut($lnkPath)
+        $sc.TargetPath = Join-Path $firefoxDir "firefox.exe"
+        $sc.Arguments = "-no-remote -profile `"$dscProfile`""
+        $sc.WorkingDirectory = $firefoxDir
+        $sc.IconLocation = (Join-Path $firefoxDir "firefox.exe") + ",0"
+        $sc.Description = "Opens NREGA/VBGRAMG portals in Firefox 43 with Java digital signature support"
+        $sc.Save()
+        Show-Step -Number 2 -Text "Desktop shortcut 'VBGRAMG DSC Signing (Firefox 43)' created" -Status "done"
+    } catch {
+        Show-Step -Number 2 -Text "Desktop shortcut (could not create, skipped)" -Status "skip"
+    }
+
     $results["Firefox Auto-Update Disabled"] = "OK"
 } else {
     Show-Step -Number 2 -Text "Firefox not found, skipping update disable" -Status "fail"
@@ -574,20 +597,48 @@ Show-Step -Number 4 -Text "Java auto-update disabled" -Status "done"
 $results["Java Security Config"] = "OK"
 
 # ============================================================================
-# STEP 5: Cleanup
+# STEP 5: Refresh Firefox plugin cache
 # ============================================================================
-Show-SectionHeader "STEP 5: CLEANUP"
+# Firefox caches its plugin scan in pluginreg.dat. If Firefox was ever opened
+# before Java was installed, that cache says "no Java" and Firefox keeps
+# trusting it -> "A plugin is needed to display this content". Deleting the
+# cache forces Firefox to re-scan and discover the Java plugin on next launch.
+Show-SectionHeader "STEP 5: REFRESH FIREFOX PLUGIN CACHE"
+
+$ffProfileRoot = Join-Path $env:APPDATA 'Mozilla\Firefox\Profiles'
+$cleared = 0
+if (Test-Path $ffProfileRoot) {
+    Get-ChildItem $ffProfileRoot -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        $preg = Join-Path $_.FullName 'pluginreg.dat'
+        if (Test-Path $preg) {
+            try { Remove-Item $preg -Force -ErrorAction Stop; $cleared++ } catch {}
+        }
+    }
+    Show-Step -Number 5 -Text "Firefox plugin cache cleared ($cleared profile(s)) - Java will be detected on next launch" -Status "done"
+} else {
+    Show-Step -Number 5 -Text "No Firefox profile yet (plugin will be scanned on first launch)" -Status "skip"
+}
+$results["Firefox Plugin Cache Refreshed"] = "OK"
+
+# ============================================================================
+# STEP 6: Cleanup
+# ============================================================================
+Show-SectionHeader "STEP 6: CLEANUP"
 
 if (Test-Path $firefoxInstaller) { Remove-Item $firefoxInstaller -Force }
 if (Test-Path $javaInstaller) { Remove-Item $javaInstaller -Force }
-Show-Step -Number 5 -Text "Temporary files cleaned up" -Status "done"
+Show-Step -Number 6 -Text "Temporary files cleaned up" -Status "done"
 
 # ============================================================================
 # SUMMARY
 # ============================================================================
 Show-Summary
 
-Write-Host "  ${YELLOW}NOTE:${RESET} Edit ${CYAN}exception.sites${RESET} in the script folder to add your"
-Write-Host "  NREGA/VBGRAMG portal URLs, then re-run this script to update."
+Write-Host "  ${GREEN}IMPORTANT:${RESET} To sign documents, open the portal using the"
+Write-Host "  ${WHITE}'VBGRAMG DSC Signing (Firefox 43)'${RESET} icon on your Desktop."
+Write-Host "  ${DIM}That icon always opens the correct Firefox 43 with Java enabled.${RESET}"
+Write-Host "  ${DIM}Do NOT use your normal Firefox/Chrome/Edge for the portal.${RESET}"
+Write-Host ""
+Write-Host "  ${YELLOW}NOTE:${RESET} Edit ${CYAN}exception.sites${RESET} to add more portal URLs, then re-run."
 Write-Host ""
 Write-Host "  ${DIM}Press any key to exit...${RESET}"
