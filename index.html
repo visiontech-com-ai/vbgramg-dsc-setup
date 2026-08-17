@@ -173,6 +173,31 @@
             opacity: 0.75;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .lang-toggle {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .lang-toggle:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #ffffff;
+        }
+
         /* Hero */
         .hero {
             background: #080f1e;
@@ -426,56 +451,59 @@
     <header>
         <div class="container header-inner">
             <div class="brand">Vision Technologies and Robotics</div>
-            <div class="brand-email">subho@visiontech.com.in</div>
+            <div class="header-right">
+                <div class="brand-email">subho@visiontech.com.in</div>
+                <button id="langToggle" class="lang-toggle" type="button" aria-label="Switch language">বাংলা</button>
+            </div>
         </div>
     </header>
 
     <section class="hero">
         <div class="container">
-            <h1>One-Click Setup for NREGA &amp; VBGRAMG Digital Signature</h1>
-            <p>Download and install Java 8 + Firefox 43 in one click. Pre-configured for NREGA, VBGRAMG, and other government digital signature portals. No technical knowledge needed.</p>
+            <h1 data-i18n="hero.h1">One-Click Setup for NREGA &amp; VBGRAMG Digital Signature</h1>
+            <p data-i18n="hero.p">Download and install Java 8 + Firefox 43 in one click. Pre-configured for NREGA, VBGRAMG, and other government digital signature portals. No technical knowledge needed.</p>
 
             <div class="hero-badges">
-                <span class="badge">Java 8 (32-bit)</span>
+                <span class="badge" data-i18n="badge.java">Java 8 (32-bit)</span>
                 <span class="badge">Firefox 43.0.1</span>
-                <span class="badge">Auto-Update Disabled</span>
-                <span class="badge">100% Free</span>
+                <span class="badge" data-i18n="badge.noupdate">Auto-Update Disabled</span>
+                <span class="badge" data-i18n="badge.free">100% Free</span>
             </div>
 
             <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat" class="btn-download">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
-                Download Setup Tool
+                <span data-i18n="hero.btn">Download Setup Tool</span>
             </a>
 
-            <p class="hero-note">Works on Windows 10 and Windows 11 — just double-click to run</p>
+            <p class="hero-note" data-i18n="hero.note">Works on Windows 10 and Windows 11 — just double-click to run</p>
         </div>
     </section>
 
     <section>
         <div class="container">
-            <h2>What Does This Tool Do?</h2>
-            <p>Many Indian government portals like <strong>NREGA</strong> (nrega.nic.in) and <strong>VBGRAMG</strong> require <strong>Java applets</strong> for digital signatures. Modern browsers like Chrome and Edge have dropped Java support entirely. This tool solves the problem by installing the exact versions of Java and Firefox that work with these portals.</p>
+            <h2 data-i18n="what.h2">What Does This Tool Do?</h2>
+            <p data-i18n="what.p">Many Indian government portals like <strong>NREGA</strong> (nrega.nic.in) and <strong>VBGRAMG</strong> require <strong>Java applets</strong> for digital signatures. Modern browsers like Chrome and Edge have dropped Java support entirely. This tool solves the problem by installing the exact versions of Java and Firefox that work with these portals.</p>
 
             <div class="features">
                 <div class="feature-card">
                     <div class="feature-icon">&#9749;</div>
-                    <h3>Java 8 JRE (32-bit)</h3>
-                    <p>Installs Azul Zulu JRE 8u232 — a certified, free, open-source Java runtime identical to Oracle Java 8u231. Pre-configured with relaxed security for government portals.</p>
+                    <h3 data-i18n="card1.h3">Java 8 JRE (32-bit)</h3>
+                    <p data-i18n="card1.p">Installs Azul Zulu JRE 8u232 — a certified, free, open-source Java runtime identical to Oracle Java 8u231. Pre-configured with relaxed security for government portals.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">&#127760;</div>
-                    <h3>Firefox 43.0.1 (32-bit)</h3>
-                    <p>The last Firefox version with full Java applet support. Downloaded directly from Mozilla's official archive. Auto-update is permanently disabled through 5 independent methods.</p>
+                    <h3 data-i18n="card2.h3">Firefox 43.0.1 (32-bit)</h3>
+                    <p data-i18n="card2.p">The last Firefox version with full Java applet support. Downloaded directly from Mozilla's official archive. Auto-update is permanently disabled through 5 independent methods.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">&#128274;</div>
-                    <h3>Update Protection</h3>
-                    <p>Firefox auto-update is locked down with 5 layers: config lock, service disable, updater removal, host blocking, and task cleanup. Your setup stays intact.</p>
+                    <h3 data-i18n="card3.h3">Update Protection</h3>
+                    <p data-i18n="card3.p">Firefox auto-update is locked down with 5 layers: config lock, service disable, updater removal, host blocking, and task cleanup. Your setup stays intact.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">&#9889;</div>
-                    <h3>One-Click Install</h3>
-                    <p>Just double-click setup.bat. No technical knowledge required. The script handles admin elevation, downloading, installing, and configuring everything automatically.</p>
+                    <h3 data-i18n="card4.h3">One-Click Install</h3>
+                    <p data-i18n="card4.p">Just double-click setup.bat. No technical knowledge required. The script handles admin elevation, downloading, installing, and configuring everything automatically.</p>
                 </div>
             </div>
         </div>
@@ -483,35 +511,35 @@
 
     <section>
         <div class="container">
-            <h2>How to Use — NREGA &amp; VBGRAMG Java Firefox Setup</h2>
+            <h2 data-i18n="how.h2">How to Use — NREGA &amp; VBGRAMG Java Firefox Setup</h2>
 
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3>Download setup.bat</h3>
-                        <p>Click the download button above to save <code>setup.bat</code> to your computer. No ZIP extraction needed — it's a single file.</p>
+                        <h3 data-i18n="step1.h3">Download setup.bat</h3>
+                        <p data-i18n="step1.p">Click the download button above to save <code>setup.bat</code> to your computer. No ZIP extraction needed — it's a single file.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3>Double-Click to Run</h3>
-                        <p>Double-click <code>setup.bat</code>. Windows will ask for administrator permission — click "Yes". The script downloads everything it needs and starts automatically.</p>
+                        <h3 data-i18n="step2.h3">Double-Click to Run</h3>
+                        <p data-i18n="step2.p">Double-click <code>setup.bat</code>. Windows will ask for administrator permission — click "Yes". The script downloads everything it needs and starts automatically.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3>Wait for Setup to Complete</h3>
-                        <p>The tool will download Firefox 43.0.1 and Java 8, install them silently, configure security settings, and disable Firefox auto-update. This takes 2-5 minutes depending on your internet speed.</p>
+                        <h3 data-i18n="step3.h3">Wait for Setup to Complete</h3>
+                        <p data-i18n="step3.p">The tool will download Firefox 43.0.1 and Java 8, install them silently, configure security settings, and disable Firefox auto-update. This takes 2-5 minutes depending on your internet speed.</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
                     <div class="step-content">
-                        <h3>Open Firefox and Use Your Portal</h3>
-                        <p>Launch Firefox 43 from the desktop shortcut or Start Menu. Navigate to your NREGA or VBGRAMG portal and use the digital signature feature as usual.</p>
+                        <h3 data-i18n="step4.h3">Open Firefox and Use Your Portal</h3>
+                        <p data-i18n="step4.p">Launch Firefox 43 from the desktop shortcut or Start Menu. Navigate to your NREGA or VBGRAMG portal and use the digital signature feature as usual.</p>
                     </div>
                 </div>
             </div>
@@ -520,79 +548,79 @@
 
     <section>
         <div class="container">
-            <h2>System Requirements</h2>
+            <h2 data-i18n="sysreq.h2">System Requirements</h2>
             <ul style="list-style: none; padding: 0;">
-                <li style="padding: 0.5rem 0;"><strong>OS:</strong> Windows 10 or Windows 11 (32-bit or 64-bit)</li>
-                <li style="padding: 0.5rem 0;"><strong>Internet:</strong> Required for first-time download (approx. 100 MB total)</li>
-                <li style="padding: 0.5rem 0;"><strong>Disk Space:</strong> ~300 MB free</li>
-                <li style="padding: 0.5rem 0;"><strong>Other:</strong> No other software needed. Works alongside Chrome, Edge, or any other browser.</li>
+                <li style="padding: 0.5rem 0;" data-i18n="sysreq.os"><strong>OS:</strong> Windows 10 or Windows 11 (32-bit or 64-bit)</li>
+                <li style="padding: 0.5rem 0;" data-i18n="sysreq.net"><strong>Internet:</strong> Required for first-time download (approx. 100 MB total)</li>
+                <li style="padding: 0.5rem 0;" data-i18n="sysreq.disk"><strong>Disk Space:</strong> ~300 MB free</li>
+                <li style="padding: 0.5rem 0;" data-i18n="sysreq.other"><strong>Other:</strong> No other software needed. Works alongside Chrome, Edge, or any other browser.</li>
             </ul>
         </div>
     </section>
 
     <section>
         <div class="container">
-            <h2>Frequently Asked Questions — NREGA VBGRAMG Digital Signature</h2>
+            <h2 data-i18n="faq.h2">Frequently Asked Questions — NREGA VBGRAMG Digital Signature</h2>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq1.q">
                     Why do I need an old version of Firefox for NREGA digital signature?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq1.a">
                     NREGA and VBGRAMG government portals use Java applets for digital signatures. Starting from 2017, all modern browsers (Chrome, Edge, Firefox 52+) removed support for Java plugins (NPAPI). Firefox 43.0.1 is one of the last stable versions that fully supports Java applets, making it necessary for digital signature operations on these portals.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq2.q">
                     What is VBGRAMG and why does it need Java?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq2.a">
                     VBGRAMG is a government portal used for various administrative functions. It uses Java-based digital signature components for secure authentication and document signing. These components require Java 8 (32-bit) running inside a compatible browser to function correctly.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq3.q">
                     Is this tool safe to use?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq3.a">
                     Yes. Firefox is downloaded directly from Mozilla's official archive server (ftp.mozilla.org). Java is downloaded from Azul Systems' official CDN — Azul Zulu JRE 8u232 is a certified, open-source Java build that is functionally identical to Oracle Java 8u231. The entire setup script source code is open and available on GitHub for inspection.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq4.q">
                     Why is Firefox auto-update disabled?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq4.a">
                     If Firefox updates to a newer version, it will permanently lose Java applet support. This means your NREGA/VBGRAMG digital signatures will stop working. The setup tool applies 5 independent protection layers to ensure Firefox stays at version 43.0.1 and never auto-updates.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq5.q">
                     Can I use this alongside my regular browser?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq5.a">
                     Absolutely. Firefox 43 installs to its own folder and does not interfere with Chrome, Microsoft Edge, or any other browser. We recommend using Firefox 43 exclusively for NREGA/VBGRAMG digital signature work, and your regular browser for all other internet browsing.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq6.q">
                     How do I add my portal URLs to the Java exception site list?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq6.a">
                     Open the <code>exception.sites</code> file in the setup folder using Notepad. Add your NREGA or VBGRAMG portal URLs, one per line (include http:// or https://). Save the file and run setup.bat again to apply the updated list. Common URLs like nrega.nic.in are pre-filled.
                 </div>
             </div>
 
             <div class="faq-item">
-                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')">
+                <div class="faq-question" onclick="this.parentElement.classList.toggle('open')" data-i18n="faq7.q">
                     Why Azul Zulu Java instead of Oracle Java?
                 </div>
-                <div class="faq-answer">
+                <div class="faq-answer" data-i18n="faq7.a">
                     Since April 2019, Oracle Java 8u211 and later requires a paid license for commercial/government use. Azul Zulu JRE 8u232 is a free, open-source alternative built from the same OpenJDK source code. It is functionally identical and fully compatible with all Java applications, including NREGA and VBGRAMG digital signature applets.
                 </div>
             </div>
@@ -601,19 +629,19 @@
 
     <section>
         <div class="container">
-            <h2>Troubleshooting NREGA Java Firefox Issues</h2>
+            <h2 data-i18n="trouble.h2">Troubleshooting NREGA Java Firefox Issues</h2>
 
-            <h3>Java applet not loading in Firefox</h3>
-            <p>Make sure you are using the installed Firefox 43, not a different version. Check that Java is enabled: type <code>about:addons</code> in Firefox's address bar, go to Plugins, and ensure "Java(TM) Platform" is set to "Always Activate".</p>
+            <h3 data-i18n="trouble1.h3">Java applet not loading in Firefox</h3>
+            <p data-i18n="trouble1.p">Make sure you are using the installed Firefox 43, not a different version. Check that Java is enabled: type <code>about:addons</code> in Firefox's address bar, go to Plugins, and ensure "Java(TM) Platform" is set to "Always Activate".</p>
 
-            <h3>Digital signature popup not appearing</h3>
-            <p>Your portal URL may need to be added to the Java exception site list. Open <code>exception.sites</code> in the setup folder, add the portal URL, and re-run setup.bat.</p>
+            <h3 data-i18n="trouble2.h3">Digital signature popup not appearing</h3>
+            <p data-i18n="trouble2.p">Your portal URL may need to be added to the Java exception site list. Open <code>exception.sites</code> in the setup folder, add the portal URL, and re-run setup.bat.</p>
 
-            <h3>Windows SmartScreen warning</h3>
-            <p>When you first run setup.bat, Windows may show a SmartScreen warning because the file was downloaded from the internet. Click "More info" and then "Run anyway". This is normal for downloaded scripts.</p>
+            <h3 data-i18n="trouble3.h3">Windows SmartScreen warning</h3>
+            <p data-i18n="trouble3.p">When you first run setup.bat, Windows may show a SmartScreen warning because the file was downloaded from the internet. Click "More info" and then "Run anyway". This is normal for downloaded scripts.</p>
 
-            <h3>"Java is not recognized" error</h3>
-            <p>Re-run setup.bat to reinstall Java. If the issue persists, restart your computer after installation.</p>
+            <h3 data-i18n="trouble4.h3">"Java is not recognized" error</h3>
+            <p data-i18n="trouble4.p">Re-run setup.bat to reinstall Java. If the issue persists, restart your computer after installation.</p>
         </div>
     </section>
 
@@ -622,16 +650,125 @@
             <div class="brand-name">Vision Technologies and Robotics</div>
             <p><a href="mailto:subho@visiontech.com.in">subho@visiontech.com.in</a></p>
             <div class="footer-links">
-                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup">GitHub Repository</a>
-                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/issues">Report an Issue</a>
-                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat">Download</a>
+                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup" data-i18n="footer.repo">GitHub Repository</a>
+                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/issues" data-i18n="footer.issue">Report an Issue</a>
+                <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat" data-i18n="footer.download">Download</a>
             </div>
-            <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.6;">
+            <p style="margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.6;" data-i18n="footer.disclaimer">
                 NREGA, VBGRAMG, and associated government portal names are property of the Government of India.
                 This tool is an independent utility and is not affiliated with or endorsed by any government body.
             </p>
         </div>
     </footer>
+
+    <script>
+        // Bengali translations. English is the source of truth in the HTML;
+        // each element's original English is captured on load, so we only
+        // maintain the Bengali dictionary here.
+        var I18N_BN = {
+            "hero.h1": "NREGA ও VBGRAMG ডিজিটাল স্বাক্ষরের জন্য এক-ক্লিক সেটআপ",
+            "hero.p": "এক ক্লিকে Java 8 + Firefox 43 ডাউনলোড ও ইনস্টল করুন। NREGA, VBGRAMG এবং অন্যান্য সরকারি ডিজিটাল স্বাক্ষর পোর্টালের জন্য পূর্ব-কনফিগার করা। কোনো কারিগরি জ্ঞানের প্রয়োজন নেই।",
+            "badge.java": "Java 8 (৩২-বিট)",
+            "badge.noupdate": "অটো-আপডেট বন্ধ",
+            "badge.free": "১০০% বিনামূল্যে",
+            "hero.btn": "সেটআপ টুল ডাউনলোড করুন",
+            "hero.note": "Windows 10 এবং Windows 11-এ কাজ করে — শুধু ডাবল-ক্লিক করে চালান",
+
+            "what.h2": "এই টুলটি কী করে?",
+            "what.p": "<strong>NREGA</strong> (nrega.nic.in) এবং <strong>VBGRAMG</strong>-এর মতো অনেক ভারতীয় সরকারি পোর্টাল ডিজিটাল স্বাক্ষরের জন্য <strong>Java অ্যাপলেট</strong> ব্যবহার করে। Chrome ও Edge-এর মতো আধুনিক ব্রাউজার Java সমর্থন সম্পূর্ণ বন্ধ করে দিয়েছে। এই টুলটি এই পোর্টালগুলির সাথে কাজ করে এমন সঠিক সংস্করণের Java ও Firefox ইনস্টল করে সমস্যাটি সমাধান করে।",
+
+            "card1.h3": "Java 8 JRE (৩২-বিট)",
+            "card1.p": "Azul Zulu JRE 8u232 ইনস্টল করে — একটি প্রত্যয়িত, বিনামূল্যের, ওপেন-সোর্স Java রানটাইম যা Oracle Java 8u231-এর অভিন্ন। সরকারি পোর্টালের জন্য শিথিল নিরাপত্তা সহ পূর্ব-কনফিগার করা।",
+            "card2.h3": "Firefox 43.0.1 (৩২-বিট)",
+            "card2.p": "সম্পূর্ণ Java অ্যাপলেট সমর্থন সহ শেষ Firefox সংস্করণ। সরাসরি Mozilla-র অফিসিয়াল আর্কাইভ থেকে ডাউনলোড করা। ৫টি স্বতন্ত্র পদ্ধতিতে অটো-আপডেট স্থায়ীভাবে বন্ধ।",
+            "card3.h3": "আপডেট সুরক্ষা",
+            "card3.p": "Firefox অটো-আপডেট ৫টি স্তরে বন্ধ করা: কনফিগ লক, পরিষেবা নিষ্ক্রিয়করণ, আপডেটার অপসারণ, হোস্ট ব্লকিং এবং টাস্ক পরিষ্কার। আপনার সেটআপ অক্ষত থাকে।",
+            "card4.h3": "এক-ক্লিক ইনস্টল",
+            "card4.p": "শুধু setup.bat ডাবল-ক্লিক করুন। কোনো কারিগরি জ্ঞানের প্রয়োজন নেই। স্ক্রিপ্টটি অ্যাডমিন অনুমতি, ডাউনলোড, ইনস্টল এবং সবকিছু কনফিগার করা স্বয়ংক্রিয়ভাবে পরিচালনা করে।",
+
+            "how.h2": "কীভাবে ব্যবহার করবেন — NREGA ও VBGRAMG Java Firefox সেটআপ",
+            "step1.h3": "setup.bat ডাউনলোড করুন",
+            "step1.p": "উপরের ডাউনলোড বোতামে ক্লিক করে <code>setup.bat</code> আপনার কম্পিউটারে সংরক্ষণ করুন। কোনো ZIP এক্সট্র্যাকশনের প্রয়োজন নেই — এটি একটি একক ফাইল।",
+            "step2.h3": "চালাতে ডাবল-ক্লিক করুন",
+            "step2.p": "<code>setup.bat</code> ডাবল-ক্লিক করুন। Windows অ্যাডমিনিস্ট্রেটর অনুমতি চাইবে — \"Yes\" ক্লিক করুন। স্ক্রিপ্টটি প্রয়োজনীয় সবকিছু ডাউনলোড করে স্বয়ংক্রিয়ভাবে শুরু হয়।",
+            "step3.h3": "সেটআপ সম্পূর্ণ হওয়ার জন্য অপেক্ষা করুন",
+            "step3.p": "টুলটি Firefox 43.0.1 ও Java 8 ডাউনলোড করবে, নীরবে ইনস্টল করবে, নিরাপত্তা সেটিংস কনফিগার করবে এবং Firefox অটো-আপডেট বন্ধ করবে। আপনার ইন্টারনেট গতির উপর নির্ভর করে এতে ২-৫ মিনিট সময় লাগে।",
+            "step4.h3": "Firefox খুলুন এবং আপনার পোর্টাল ব্যবহার করুন",
+            "step4.p": "ডেস্কটপ শর্টকাট বা স্টার্ট মেনু থেকে Firefox 43 চালু করুন। আপনার NREGA বা VBGRAMG পোর্টালে যান এবং যথারীতি ডিজিটাল স্বাক্ষর বৈশিষ্ট্য ব্যবহার করুন।",
+
+            "sysreq.h2": "সিস্টেম প্রয়োজনীয়তা",
+            "sysreq.os": "<strong>OS:</strong> Windows 10 বা Windows 11 (৩২-বিট বা ৬৪-বিট)",
+            "sysreq.net": "<strong>ইন্টারনেট:</strong> প্রথমবার ডাউনলোডের জন্য প্রয়োজন (মোট আনুমানিক ১০০ MB)",
+            "sysreq.disk": "<strong>ডিস্ক স্পেস:</strong> ~৩০০ MB খালি",
+            "sysreq.other": "<strong>অন্যান্য:</strong> অন্য কোনো সফটওয়্যারের প্রয়োজন নেই। Chrome, Edge বা অন্য যেকোনো ব্রাউজারের পাশাপাশি কাজ করে।",
+
+            "faq.h2": "সচরাচর জিজ্ঞাসিত প্রশ্ন — NREGA VBGRAMG ডিজিটাল স্বাক্ষর",
+            "faq1.q": "NREGA ডিজিটাল স্বাক্ষরের জন্য আমার কেন Firefox-এর পুরনো সংস্করণ প্রয়োজন?",
+            "faq1.a": "NREGA ও VBGRAMG সরকারি পোর্টাল ডিজিটাল স্বাক্ষরের জন্য Java অ্যাপলেট ব্যবহার করে। ২০১৭ সাল থেকে সমস্ত আধুনিক ব্রাউজার (Chrome, Edge, Firefox 52+) Java প্লাগইন (NPAPI) সমর্থন সরিয়ে দিয়েছে। Firefox 43.0.1 হল শেষ স্থিতিশীল সংস্করণগুলির একটি যা সম্পূর্ণভাবে Java অ্যাপলেট সমর্থন করে, তাই এই পোর্টালগুলিতে ডিজিটাল স্বাক্ষরের জন্য এটি প্রয়োজনীয়।",
+            "faq2.q": "VBGRAMG কী এবং এর কেন Java প্রয়োজন?",
+            "faq2.a": "VBGRAMG একটি সরকারি পোর্টাল যা বিভিন্ন প্রশাসনিক কাজে ব্যবহৃত হয়। এটি নিরাপদ প্রমাণীকরণ ও নথি স্বাক্ষরের জন্য Java-ভিত্তিক ডিজিটাল স্বাক্ষর উপাদান ব্যবহার করে। এই উপাদানগুলি সঠিকভাবে কাজ করার জন্য একটি সামঞ্জস্যপূর্ণ ব্রাউজারে Java 8 (৩২-বিট) চালানো প্রয়োজন।",
+            "faq3.q": "এই টুলটি ব্যবহার করা কি নিরাপদ?",
+            "faq3.a": "হ্যাঁ। Firefox সরাসরি Mozilla-র অফিসিয়াল আর্কাইভ সার্ভার (ftp.mozilla.org) থেকে ডাউনলোড করা হয়। Java, Azul Systems-এর অফিসিয়াল CDN থেকে ডাউনলোড করা হয় — Azul Zulu JRE 8u232 একটি প্রত্যয়িত, ওপেন-সোর্স Java বিল্ড যা Oracle Java 8u231-এর কার্যকরীভাবে অভিন্ন। সম্পূর্ণ সেটআপ স্ক্রিপ্টের সোর্স কোড GitHub-এ পরিদর্শনের জন্য উন্মুক্ত।",
+            "faq4.q": "Firefox অটো-আপডেট কেন বন্ধ করা হয়েছে?",
+            "faq4.a": "Firefox যদি নতুন সংস্করণে আপডেট হয়, তবে এটি স্থায়ীভাবে Java অ্যাপলেট সমর্থন হারাবে। এর মানে আপনার NREGA/VBGRAMG ডিজিটাল স্বাক্ষর কাজ করা বন্ধ করে দেবে। Firefox যাতে সংস্করণ 43.0.1-এ থাকে এবং কখনও অটো-আপডেট না হয় তা নিশ্চিত করতে সেটআপ টুলটি ৫টি স্বতন্ত্র সুরক্ষা স্তর প্রয়োগ করে।",
+            "faq5.q": "আমি কি আমার নিয়মিত ব্রাউজারের পাশাপাশি এটি ব্যবহার করতে পারি?",
+            "faq5.a": "অবশ্যই। Firefox 43 তার নিজস্ব ফোল্ডারে ইনস্টল হয় এবং Chrome, Microsoft Edge বা অন্য কোনো ব্রাউজারে হস্তক্ষেপ করে না। আমরা NREGA/VBGRAMG ডিজিটাল স্বাক্ষরের কাজের জন্য শুধুমাত্র Firefox 43 এবং অন্য সব ইন্টারনেট ব্রাউজিংয়ের জন্য আপনার নিয়মিত ব্রাউজার ব্যবহারের পরামর্শ দিই।",
+            "faq6.q": "আমি কীভাবে Java এক্সসেপশন সাইট তালিকায় আমার পোর্টাল URL যোগ করব?",
+            "faq6.a": "সেটআপ ফোল্ডারের <code>exception.sites</code> ফাইলটি Notepad দিয়ে খুলুন। আপনার NREGA বা VBGRAMG পোর্টাল URL প্রতি লাইনে একটি করে যোগ করুন (http:// বা https:// সহ)। ফাইলটি সংরক্ষণ করুন এবং আপডেট করা তালিকা প্রয়োগ করতে আবার setup.bat চালান। nrega.nic.in-এর মতো সাধারণ URL আগে থেকে পূরণ করা আছে।",
+            "faq7.q": "Oracle Java-র পরিবর্তে Azul Zulu Java কেন?",
+            "faq7.a": "২০১৯ সালের এপ্রিল থেকে Oracle Java 8u211 এবং পরবর্তী সংস্করণে বাণিজ্যিক/সরকারি ব্যবহারের জন্য একটি অর্থপ্রদত্ত লাইসেন্স প্রয়োজন। Azul Zulu JRE 8u232 একই OpenJDK সোর্স কোড থেকে তৈরি একটি বিনামূল্যের, ওপেন-সোর্স বিকল্প। এটি কার্যকরীভাবে অভিন্ন এবং NREGA ও VBGRAMG ডিজিটাল স্বাক্ষর অ্যাপলেট সহ সমস্ত Java অ্যাপ্লিকেশনের সাথে সম্পূর্ণ সামঞ্জস্যপূর্ণ।",
+
+            "trouble.h2": "NREGA Java Firefox সমস্যা সমাধান",
+            "trouble1.h3": "Firefox-এ Java অ্যাপলেট লোড হচ্ছে না",
+            "trouble1.p": "নিশ্চিত করুন যে আপনি ইনস্টল করা Firefox 43 ব্যবহার করছেন, ভিন্ন সংস্করণ নয়। Java সক্রিয় আছে কিনা পরীক্ষা করুন: Firefox-এর অ্যাড্রেস বারে <code>about:addons</code> টাইপ করুন, Plugins-এ যান এবং নিশ্চিত করুন \"Java(TM) Platform\" \"Always Activate\"-এ সেট করা আছে।",
+            "trouble2.h3": "ডিজিটাল স্বাক্ষর পপআপ দেখা যাচ্ছে না",
+            "trouble2.p": "আপনার পোর্টাল URL Java এক্সসেপশন সাইট তালিকায় যোগ করার প্রয়োজন হতে পারে। সেটআপ ফোল্ডারে <code>exception.sites</code> খুলুন, পোর্টাল URL যোগ করুন এবং আবার setup.bat চালান।",
+            "trouble3.h3": "Windows SmartScreen সতর্কতা",
+            "trouble3.p": "আপনি প্রথমবার setup.bat চালানোর সময়, ফাইলটি ইন্টারনেট থেকে ডাউনলোড করা হয়েছে বলে Windows একটি SmartScreen সতর্কতা দেখাতে পারে। \"More info\" এবং তারপর \"Run anyway\" ক্লিক করুন। ডাউনলোড করা স্ক্রিপ্টের জন্য এটি স্বাভাবিক।",
+            "trouble4.h3": "\"Java is not recognized\" ত্রুটি",
+            "trouble4.p": "Java পুনরায় ইনস্টল করতে setup.bat আবার চালান। সমস্যা অব্যাহত থাকলে, ইনস্টলেশনের পরে আপনার কম্পিউটার পুনরায় চালু করুন।",
+
+            "footer.repo": "GitHub রিপোজিটরি",
+            "footer.issue": "সমস্যা রিপোর্ট করুন",
+            "footer.download": "ডাউনলোড",
+            "footer.disclaimer": "NREGA, VBGRAMG এবং সংশ্লিষ্ট সরকারি পোর্টালের নাম ভারত সরকারের সম্পত্তি। এই টুলটি একটি স্বাধীন উপযোগিতা এবং কোনো সরকারি সংস্থার সাথে সম্পর্কিত বা অনুমোদিত নয়।"
+        };
+
+        (function () {
+            var els = document.querySelectorAll('[data-i18n]');
+            // Capture the original English markup as the fallback language.
+            for (var i = 0; i < els.length; i++) {
+                els[i].setAttribute('data-en', els[i].innerHTML);
+            }
+
+            function setLang(lang) {
+                for (var i = 0; i < els.length; i++) {
+                    var key = els[i].getAttribute('data-i18n');
+                    if (lang === 'bn' && I18N_BN[key] !== undefined) {
+                        els[i].innerHTML = I18N_BN[key];
+                    } else {
+                        els[i].innerHTML = els[i].getAttribute('data-en');
+                    }
+                }
+                document.documentElement.lang = (lang === 'bn') ? 'bn' : 'en';
+                var btn = document.getElementById('langToggle');
+                if (btn) { btn.textContent = (lang === 'bn') ? 'English' : 'বাংলা'; }
+                try { localStorage.setItem('vbgramg_lang', lang); } catch (e) {}
+            }
+
+            var saved = 'en';
+            try { saved = localStorage.getItem('vbgramg_lang') || 'en'; } catch (e) {}
+            if (saved === 'bn') { setLang('bn'); }
+
+            var toggle = document.getElementById('langToggle');
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    var current = document.documentElement.lang === 'bn' ? 'bn' : 'en';
+                    setLang(current === 'bn' ? 'en' : 'bn');
+                });
+            }
+        })();
+    </script>
 
 </body>
 </html>
