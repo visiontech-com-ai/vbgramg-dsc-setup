@@ -1,0 +1,8 @@
+# Oracle JRE installers are OTN-licensed - do NOT commit/redistribute publicly.
+# Place jre-8u231-windows-i586.exe next to setup.bat locally to pin the version.
+jre-*.exe
+*.exe
+
+# Temp / local
+*.log
+scratch/

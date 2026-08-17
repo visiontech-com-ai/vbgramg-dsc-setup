@@ -290,6 +290,33 @@ function Show-SectionHeader {
     Write-Host ""
 }
 
+function Get-UninstallEntries {
+    # Read installed-program entries from both 32-bit and 64-bit uninstall hives.
+    $roots = @(
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'
+    )
+    $items = @()
+    foreach ($r in $roots) {
+        if (Test-Path $r) {
+            Get-ChildItem $r -ErrorAction SilentlyContinue | ForEach-Object {
+                $p = Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue
+                if ($p -and $p.DisplayName) {
+                    $items += [PSCustomObject]@{
+                        Name           = $p.DisplayName
+                        Version        = $p.DisplayVersion
+                        Uninstall      = $p.UninstallString
+                        QuietUninstall = $p.QuietUninstallString
+                        Key            = $_.PSChildName
+                        Location       = $p.InstallLocation
+                    }
+                }
+            }
+        }
+    }
+    return $items
+}
+
 # ============================================================================
 # MAIN SCRIPT
 # ============================================================================
@@ -327,6 +354,91 @@ if ($internet) {
     Show-Step -Number 0 -Text "Internet connectivity" -Status "done"
 } else {
     Show-Step -Number 0 -Text "Internet check inconclusive (will try anyway)" -Status "skip"
+}
+
+# ============================================================================
+# STEP 0.5: Detect & remove CONFLICTING Firefox / Java versions
+# ============================================================================
+# Our required versions are Firefox 43.0.1 and a specific Oracle Java 8 (the
+# bundled jre-8u*-windows-i586.exe, e.g. 8u231). Any OTHER Firefox or Java
+# breaks the digital-signature applet, so we offer to remove them (and wipe
+# Firefox profiles) after an explicit confirmation.
+Show-SectionHeader "CHECKING FOR CONFLICTING VERSIONS"
+
+# Our target versions
+$targetFFVer = "43.0.1"
+$bundledInstaller = Get-ChildItem $scriptDir -Filter "jre-8u*-windows-i586.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+$targetJavaUpdate = $null
+if ($bundledInstaller -and $bundledInstaller.Name -match 'jre-8u(\d+)-') { $targetJavaUpdate = $Matches[1] }
+
+$allInstalls = Get-UninstallEntries
+$ffInstalls  = $allInstalls | Where-Object { $_.Name -match 'Mozilla Firefox' }
+$javaInstalls = $allInstalls | Where-Object { $_.Name -match 'Java (\d+ Update \d+|SE Development Kit|\d)' -or $_.Name -match 'Java\(TM\)' }
+
+# Decide what conflicts (i.e. is NOT our version)
+$ffToRemove = @($ffInstalls | Where-Object { $_.Version -ne $targetFFVer })
+$javaToRemove = @($javaInstalls | Where-Object {
+    if ($targetJavaUpdate) { -not ($_.Name -match "Update\s+$targetJavaUpdate(\b|\s|\()") } else { $true }
+})
+
+if ($ffToRemove.Count -eq 0 -and $javaToRemove.Count -eq 0) {
+    Show-Step -Number 0 -Text "No conflicting Firefox or Java versions found" -Status "done"
+} else {
+    Write-Host "  ${YELLOW}The following will be REMOVED so the correct versions can be installed:${RESET}"
+    Write-Host ""
+    foreach ($x in $ffToRemove)  { Write-Host "    ${RED}[Firefox]${RESET} $($x.Name)  ($($x.Version))" }
+    foreach ($x in $javaToRemove) { Write-Host "    ${RED}[Java]   ${RESET} $($x.Name)  ($($x.Version))" }
+    Write-Host ""
+    if ($ffToRemove.Count -gt 0) {
+        Write-Host "  ${YELLOW}All Firefox profiles will also be deleted${RESET} (bookmarks, saved"
+        Write-Host "  passwords, and history in those Firefox profiles will be LOST)."
+        Write-Host ""
+    }
+    $answer = Read-Host "  Type YES to remove these and continue (anything else = keep them)"
+    if ($answer -eq 'YES') {
+        # --- Uninstall conflicting Java ---
+        foreach ($j in $javaToRemove) {
+            Write-Host "      ${DIM}Uninstalling $($j.Name)...${RESET}"
+            try {
+                if ($j.Key -match '^\{[0-9A-Fa-f\-]+\}$') {
+                    Start-Process "msiexec.exe" -ArgumentList "/x $($j.Key) /qn /norestart" -Wait -ErrorAction Stop
+                } elseif ($j.QuietUninstall) {
+                    Start-Process "cmd.exe" -ArgumentList "/c $($j.QuietUninstall)" -Wait -ErrorAction Stop
+                }
+            } catch {}
+        }
+        # --- Uninstall conflicting Firefox (NSIS silent) ---
+        foreach ($f in $ffToRemove) {
+            Write-Host "      ${DIM}Uninstalling $($f.Name)...${RESET}"
+            try {
+                $helper = $null
+                if ($f.Location -and (Test-Path (Join-Path $f.Location "uninstall\helper.exe"))) {
+                    $helper = Join-Path $f.Location "uninstall\helper.exe"
+                } elseif ($f.Uninstall -and $f.Uninstall -match 'helper\.exe') {
+                    $helper = ($f.Uninstall -replace '"','').Trim()
+                }
+                if ($helper -and (Test-Path $helper)) {
+                    Start-Process $helper -ArgumentList "/S" -Wait -ErrorAction Stop
+                    Start-Sleep -Seconds 2
+                }
+            } catch {}
+        }
+        # --- Remove Firefox profiles (our dedicated DSC profile lives elsewhere) ---
+        if ($ffToRemove.Count -gt 0) {
+            Get-Process firefox -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            foreach ($pdir in @("$env:APPDATA\Mozilla\Firefox", "$env:LOCALAPPDATA\Mozilla\Firefox")) {
+                if (Test-Path $pdir) {
+                    try { Remove-Item $pdir -Recurse -Force -ErrorAction Stop } catch {}
+                }
+            }
+        }
+        Show-Step -Number 0 -Text "Conflicting versions removed" -Status "done"
+        $results["Removed Conflicting Versions"] = "OK"
+    } else {
+        Show-Step -Number 0 -Text "Kept existing versions (user declined removal)" -Status "skip"
+        Write-Host "  ${YELLOW}WARNING:${RESET} the digital signature may not work while other"
+        Write-Host "  Firefox/Java versions remain installed."
+    }
 }
 
 # ============================================================================
@@ -527,15 +639,45 @@ start "" "%FF%" -no-remote -profile "$dscProfile"
 # ============================================================================
 Show-SectionHeader "STEP 3: JAVA 8 (ORACLE JRE, 32-BIT)"
 
-# Detect an existing Oracle JRE 8 with the browser plugin already registered.
+# Prefer a bundled Oracle JRE installer (e.g. jre-8u231-windows-i586.exe) placed
+# next to this script. Government DSC applets often require a SPECIFIC older Java
+# 8 version (e.g. 8u231); the very latest Java 8 can break them. Bundling the
+# known-good installer pins that exact version. If none is bundled, fall back to
+# downloading the current Oracle Java 8 from java.com.
+$localJre = Get-ChildItem $scriptDir -Filter "jre-8u*-windows-i586.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+$bundledVer = $null
+if ($localJre -and $localJre.Name -match 'jre-8u(\d+)-') { $bundledVer = $Matches[1] }
+$bundledInstalled = $false
+if ($bundledVer) {
+    $bundledInstalled = Test-Path "C:\Program Files (x86)\Java\jre1.8.0_$bundledVer\bin\plugin2\npjp2.dll"
+}
+
 $existingPlugin = $null
 if (Test-Path $javaRoot) {
     $existingPlugin = Get-ChildItem $javaRoot -Recurse -Filter "npjp2.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
 }
-if ($existingPlugin) {
+
+if ($localJre -and $bundledInstalled) {
+    Show-Step -Number 3 -Text "Oracle Java 8u$bundledVer already installed" -Status "skip"
+    $results["Java 8 (Oracle 8u$bundledVer) Install"] = "SKIP"
+} elseif ($localJre) {
+    Show-Step -Number 3 -Text "Installing bundled $($localJre.Name)..." -Status "running"
+    Write-Host "      ${DIM}Installing Oracle Java 8u$bundledVer from bundled installer...${RESET}"
+    $ok = Install-OracleJre -Installer $localJre.FullName
+    if ($ok) {
+        Show-Step -Number 3 -Text "Oracle Java 8u$bundledVer installed (with browser plugin)" -Status "done"
+        $results["Java 8 (Oracle 8u$bundledVer) Install"] = "OK"
+    } else {
+        Show-Step -Number 3 -Text "Oracle Java 8u$bundledVer installation failed" -Status "fail"
+        $results["Java 8 (Oracle 8u$bundledVer) Install"] = "FAIL"
+    }
+} elseif ($existingPlugin) {
     Show-Step -Number 3 -Text "Oracle Java 8 (with browser plugin) already installed" -Status "skip"
     $results["Java 8 (Oracle) Install"] = "SKIP"
 } else {
+    Write-Host "      ${YELLOW}No bundled jre-8u*-windows-i586.exe found; downloading latest Oracle Java 8.${RESET}"
+    Write-Host "      ${DIM}NOTE: if your portal needs a specific version (e.g. 8u231), place${RESET}"
+    Write-Host "      ${DIM}jre-8u231-windows-i586.exe next to setup.bat and re-run.${RESET}"
     Show-Step -Number 3 -Text "Locating Oracle Java 8 (32-bit) download..." -Status "running"
     $javaUrl = Get-OracleJreUrl
     if (-not $javaUrl) {

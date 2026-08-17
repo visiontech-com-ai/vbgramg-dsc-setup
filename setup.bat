@@ -50,6 +50,13 @@ if %errorlevel% neq 0 (
 
 echo.
 
+:: If a bundled Oracle JRE installer sits next to this bat (to pin a specific
+:: Java version, e.g. jre-8u231-windows-i586.exe), copy it into the work folder
+:: so setup.ps1 installs that exact version instead of downloading the latest.
+for %%J in ("%~dp0jre-8u*-windows-i586.exe") do (
+    if exist "%%J" if /I not "%~dp0"=="%WORKDIR%\" copy /y "%%J" "%WORKDIR%\" >nul
+)
+
 :run_setup
 powershell -NoProfile -ExecutionPolicy Bypass -File "%WORKDIR%\setup.ps1"
 
