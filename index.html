@@ -243,19 +243,47 @@
             color: #ffffff !important;
         }
 
+        .download-options {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .dl-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 320px;
+            flex: 1 1 280px;
+        }
+
+        .dl-desc {
+            margin-top: 0.7rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #cbd8ea;
+        }
+
+        .dl-desc strong { color: #ffffff; }
+
         .btn-download {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
+            width: 100%;
             background: var(--accent);
             color: #1f2937;
-            padding: 1rem 2.5rem;
+            padding: 1rem 1.75rem;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             text-decoration: none;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            box-sizing: border-box;
         }
 
         .btn-download:hover {
@@ -266,7 +294,36 @@
         .btn-download svg {
             width: 20px;
             height: 20px;
+            flex-shrink: 0;
         }
+
+        .btn-download-alt {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #4b83cc;
+            box-shadow: none;
+        }
+
+        .btn-download-alt:hover {
+            background: rgba(75,131,204,0.18);
+            border-color: #ffffff;
+        }
+
+        .dl-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 0.25rem auto 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 0.85rem;
+            color: #e6eefb;
+        }
+
+        .dl-counter strong { color: #ffffff; font-size: 0.95rem; }
+        .dl-counter svg { width: 15px; height: 15px; }
 
         .hero-note {
             margin-top: 1rem;
@@ -471,10 +528,27 @@
                 <span class="badge" data-i18n="badge.free">100% Free</span>
             </div>
 
-            <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat" class="btn-download">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
-                <span data-i18n="hero.btn">Download Setup Tool</span>
-            </a>
+            <div class="download-options">
+                <div class="dl-card">
+                    <a href="https://github.com/visiontech-com-ai/vbgramg-dsc-setup/releases/latest/download/setup.bat" class="btn-download">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+                        <span data-i18n="dl.bat.btn">Download Setup Tool (.bat)</span>
+                    </a>
+                    <p class="dl-desc" data-i18n="dl.bat.desc">Small file (a few KB). When you run it, it downloads Java 8 and Firefox 43 and installs everything. <strong>Recommended for most users.</strong></p>
+                </div>
+                <div class="dl-card">
+                    <a href="#" id="exeBtn" class="btn-download btn-download-alt">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+                        <span data-i18n="dl.exe.btn">Download Offline Installer (.exe)</span>
+                    </a>
+                    <p class="dl-desc" data-i18n="dl.exe.desc">All-in-one installer with Java built in (~63 MB). Best where internet is slow or restricted. Only Firefox is downloaded when you run it.</p>
+                </div>
+            </div>
+
+            <div class="dl-counter" id="dlCounter" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+                <strong id="dlCount">—</strong>&nbsp;<span data-i18n="dl.counter">downloads so far</span>
+            </div>
 
             <p class="hero-note" data-i18n="hero.note">Works on Windows 10 and Windows 11 — just double-click to run</p>
         </div>
@@ -669,6 +743,11 @@
         var I18N_BN = {
             "hero.h1": "NREGA ও VBGRAMG ডিজিটাল স্বাক্ষরের জন্য এক-ক্লিক সেটআপ",
             "hero.p": "এক ক্লিকে Java 8 + Firefox 43 ডাউনলোড ও ইনস্টল করুন। NREGA, VBGRAMG এবং অন্যান্য সরকারি ডিজিটাল স্বাক্ষর পোর্টালের জন্য পূর্ব-কনফিগার করা। কোনো কারিগরি জ্ঞানের প্রয়োজন নেই।",
+            "dl.bat.btn": "সেটআপ টুল ডাউনলোড করুন (.bat)",
+            "dl.bat.desc": "ছোট ফাইল (কয়েক KB)। চালালে এটি Java 8 ও Firefox 43 ডাউনলোড করে সবকিছু ইনস্টল করে। <strong>বেশিরভাগ ব্যবহারকারীর জন্য প্রস্তাবিত।</strong>",
+            "dl.exe.btn": "অফলাইন ইনস্টলার ডাউনলোড করুন (.exe)",
+            "dl.exe.desc": "Java অন্তর্ভুক্ত সহ অল-ইন-ওয়ান ইনস্টলার (~৬৩ MB)। ইন্টারনেট ধীর বা সীমাবদ্ধ হলে সেরা। চালানোর সময় শুধু Firefox ডাউনলোড হয়।",
+            "dl.counter": "বার ডাউনলোড হয়েছে",
             "badge.java": "Java 8 (৩২-বিট)",
             "badge.noupdate": "অটো-আপডেট বন্ধ",
             "badge.free": "১০০% বিনামূল্যে",
@@ -769,6 +848,60 @@
                     setLang(current === 'bn' ? 'en' : 'bn');
                 });
             }
+        })();
+    </script>
+
+    <script>
+        // ---- Offline installer (.exe) download link ----
+        // The .exe bundles Oracle Java, so it is hosted on the deployer's own
+        // storage (Dropbox), NOT on the public GitHub repo. Paste the direct
+        // Dropbox link below (dl=1 is forced automatically). Leave empty to
+        // disable the button until the link is set.
+        var EXE_URL = "";
+        (function () {
+            var btn = document.getElementById('exeBtn');
+            if (!btn) return;
+            if (EXE_URL) {
+                var u = EXE_URL.indexOf('dl=0') > -1 ? EXE_URL.replace('dl=0', 'dl=1')
+                        : (EXE_URL.indexOf('dl=1') > -1 ? EXE_URL
+                        : EXE_URL + (EXE_URL.indexOf('?') > -1 ? '&dl=1' : '?dl=1'));
+                btn.setAttribute('href', u);
+            } else {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    alert('The all-in-one offline installer is being finalized and will be available here shortly. For now, please use the "Download Setup Tool (.bat)" option.');
+                });
+                btn.style.opacity = '0.65';
+            }
+        })();
+
+        // ---- Live download counter (GitHub release asset download_count) ----
+        (function () {
+            try {
+                fetch('https://api.github.com/repos/visiontech-com-ai/vbgramg-dsc-setup/releases')
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (releases) {
+                        if (!releases || !releases.length) return;
+                        var total = 0, found = false;
+                        releases.forEach(function (rel) {
+                            (rel.assets || []).forEach(function (a) {
+                                // Count the user-facing installer downloads only,
+                                // not the helper files setup.bat pulls at runtime.
+                                if (a.name === 'setup.bat' || (a.name && a.name.toLowerCase().indexOf('.exe') > -1)) {
+                                    total += (a.download_count || 0);
+                                    found = true;
+                                }
+                            });
+                        });
+                        if (found) {
+                            var el = document.getElementById('dlCount');
+                            var box = document.getElementById('dlCounter');
+                            if (el) { el.textContent = total.toLocaleString(); }
+                            if (box) { box.hidden = false; }
+                        }
+                    })
+                    .catch(function () {});
+            } catch (e) {}
         })();
     </script>
 
