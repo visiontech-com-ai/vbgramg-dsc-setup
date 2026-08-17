@@ -113,6 +113,87 @@ Line "    exception.sites: $(Test-Path $exc)"
 if (Test-Path $exc) { Get-Content $exc | ForEach-Object { Line "        $_" } }
 Line ""
 
+# --- All Firefox installs on the machine ---
+Line "[6] FIREFOX INSTALLS FOUND"
+$ffCandidates = @(
+    "C:\Program Files (x86)\Mozilla Firefox\firefox.exe",
+    "C:\Program Files\Mozilla Firefox\firefox.exe",
+    "C:\Program Files (x86)\Mozilla Firefox ESR\firefox.exe",
+    "C:\Program Files\Mozilla Firefox ESR\firefox.exe"
+)
+foreach ($f in $ffCandidates) {
+    if (Test-Path $f) {
+        $vi = (Get-Item $f).VersionInfo
+        $bits = if ($f -match '\(x86\)') { '32-bit' } else { '64-bit' }
+        Line "    $f"
+        Line "        Version: $($vi.ProductVersion)   ($bits install path)"
+    }
+}
+Line ""
+
+# --- Dedicated DSC profile: what did Firefox 43 actually load? ---
+Line "[7] DSC PROFILE - WHAT FIREFOX 43 ACTUALLY RECORDED"
+$dscProfile = Join-Path $env:LOCALAPPDATA 'VBGRAMG-DSC-FF43'
+if (Test-Path $dscProfile) {
+    Line "    Profile path: $dscProfile"
+    # compatibility.ini tells us which Firefox binary + version last ran this profile
+    $compat = Join-Path $dscProfile 'compatibility.ini'
+    if (Test-Path $compat) {
+        Line "    -- compatibility.ini (which Firefox opened it) --"
+        Get-Content $compat | Where-Object { $_ -match 'LastVersion|LastAppDir|LastPlatformDir' } | ForEach-Object { Line "        $_" }
+    } else { Line "    compatibility.ini: not present" }
+
+    # pluginreg.dat: the full list of plugins Firefox detected
+    $preg = Join-Path $dscProfile 'pluginreg.dat'
+    if (Test-Path $preg) {
+        Line "    -- pluginreg.dat plugin entries (file paths Firefox found) --"
+        $plugins = Get-Content $preg | Where-Object { $_ -match '\.dll' -and $_ -match ':\\' }
+        if ($plugins) { $plugins | ForEach-Object { Line "        $_" } }
+        else { Line "        (no plugin DLL paths recorded - Firefox detected ZERO plugins)" }
+    } else { Line "    pluginreg.dat: not present (Firefox 43 has not scanned plugins in this profile)" }
+
+    # blocklist pref actually stored in this profile
+    $prefs = Join-Path $dscProfile 'prefs.js'
+    if (Test-Path $prefs) {
+        Line "    -- relevant prefs.js entries --"
+        Get-Content $prefs | Where-Object { $_ -match 'blocklist|plugin\.' } | ForEach-Object { Line "        $_" }
+    }
+} else {
+    Line "    DSC profile not found. Launch Firefox 43 with the Win+R command"
+    Line "    or the 'VBGRAMG DSC Signing' desktop icon first, then re-run this."
+}
+Line ""
+
+# --- Can Firefox actually LOAD npjp2.dll? (32-bit load test) ---
+Line "[8] JAVA PLUGIN DLL LOAD TEST (32-bit, like Firefox does)"
+if ($npjp2) {
+    $jreBin = Split-Path (Split-Path $npjp2.FullName -Parent) -Parent
+    $ps32 = Join-Path $env:WINDIR 'SysWOW64\WindowsPowerShell\v1.0\powershell.exe'
+    $tmp = Join-Path $env:TEMP 'npjp2test.ps1'
+    $testBody = @'
+param($dll,$bin)
+$sig = '[DllImport("kernel32", SetLastError=true, CharSet=CharSet.Unicode)] public static extern System.IntPtr LoadLibrary(string p);'
+$k = Add-Type -MemberDefinition $sig -Name L -Namespace W -PassThru
+$h1 = $k::LoadLibrary($dll); $e1 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+$env:PATH = $bin + ';' + $env:PATH
+$h2 = $k::LoadLibrary($dll); $e2 = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+if ($h1 -ne [IntPtr]::Zero) { Write-Output 'PLAIN LOAD: OK' } else { Write-Output "PLAIN LOAD: FAIL (error $e1)" }
+if ($h2 -ne [IntPtr]::Zero) { Write-Output 'LOAD WITH JRE bin ON PATH: OK' } else { Write-Output "LOAD WITH JRE bin ON PATH: FAIL (error $e2)" }
+'@
+    Set-Content -Path $tmp -Value $testBody -Encoding ASCII
+    if (Test-Path $ps32) {
+        $res = & $ps32 -NoProfile -ExecutionPolicy Bypass -File $tmp $npjp2.FullName $jreBin 2>&1
+        $res | ForEach-Object { Line "    $_" }
+    } else {
+        Line "    (32-bit PowerShell not found; skipping load test)"
+    }
+    Line "    Legend: error 126 = a dependency DLL is missing (the likely cause);"
+    Line "            error 193 = wrong bitness; OK = the plugin loads fine."
+} else {
+    Line "    npjp2.dll not found - cannot run load test"
+}
+Line ""
+
 Line "============================================================"
 Line " SUMMARY"
 $okFF = Test-Path $ffExe
