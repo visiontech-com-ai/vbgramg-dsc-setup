@@ -429,7 +429,12 @@ if (Test-Path $firefoxDir) {
             "aus4.mozilla.org",
             "aus5.mozilla.org",
             "aus2.mozilla.org",
-            "aus3.mozilla.org"
+            "aus3.mozilla.org",
+            # Blocklist servers - stop Firefox from fetching a blocklist that
+            # hard-blocks (hides) the Java plugin.
+            "blocklist.addons.mozilla.org",
+            "blocklists.settings.services.mozilla.com",
+            "firefox.settings.services.mozilla.com"
         )
         $hostsModified = $false
         foreach ($h in $updateHosts) {
