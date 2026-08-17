@@ -398,13 +398,27 @@ if (Test-Path $firefoxDir) {
     } catch {}
     Show-Step -Number 2 -Text "Maintenance Service disabled" -Status "done"
 
-    # Layer 4: Rename updater.exe
+    # Layer 4: Rename updater.exe (idempotent - handles re-runs where
+    # updater.exe.disabled already exists from a previous run)
     Write-Host "      ${DIM}Layer 4/5: Disabling updater executable...${RESET}"
-    $updaterPath = Join-Path $firefoxDir "updater.exe"
-    if (Test-Path $updaterPath) {
-        Rename-Item $updaterPath "updater.exe.disabled" -Force
+    try {
+        $updaterPath  = Join-Path $firefoxDir "updater.exe"
+        $disabledPath = Join-Path $firefoxDir "updater.exe.disabled"
+        if (Test-Path $updaterPath) {
+            if (Test-Path $disabledPath) {
+                # Already disabled once before; a fresh updater.exe reappeared
+                # (e.g. reinstall). Just remove the new one.
+                Remove-Item $updaterPath -Force -ErrorAction SilentlyContinue
+            } else {
+                Rename-Item $updaterPath $disabledPath -Force -ErrorAction Stop
+            }
+            Show-Step -Number 2 -Text "updater.exe disabled" -Status "done"
+        } else {
+            Show-Step -Number 2 -Text "updater.exe already disabled" -Status "skip"
+        }
+    } catch {
+        Show-Step -Number 2 -Text "updater.exe (could not disable, skipped)" -Status "skip"
     }
-    Show-Step -Number 2 -Text "updater.exe disabled" -Status "done"
 
     # Layer 5: Block update servers in hosts file
     Write-Host "      ${DIM}Layer 5/5: Blocking Firefox update servers in hosts file...${RESET}"
