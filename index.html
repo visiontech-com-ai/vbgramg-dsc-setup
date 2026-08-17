@@ -14,7 +14,8 @@
     <meta property="og:title" content="NREGA & VBGRAMG Java + Firefox Setup Tool">
     <meta property="og:description" content="One-click installer for NREGA and VBGRAMG digital signature. Installs Java 8 + Firefox 43 with updates disabled.">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="en_IN">
+    <meta property="og:locale" content="bn_IN">
+    <meta property="og:locale:alternate" content="en_IN">
 
     <!-- Schema.org SoftwareApplication -->
     <script type="application/ld+json">
@@ -756,9 +757,10 @@
                 try { localStorage.setItem('vbgramg_lang', lang); } catch (e) {}
             }
 
-            var saved = 'en';
-            try { saved = localStorage.getItem('vbgramg_lang') || 'en'; } catch (e) {}
-            if (saved === 'bn') { setLang('bn'); }
+            // Default to Bengali; English available via the toggle.
+            var saved = 'bn';
+            try { saved = localStorage.getItem('vbgramg_lang') || 'bn'; } catch (e) {}
+            setLang(saved);
 
             var toggle = document.getElementById('langToggle');
             if (toggle) {
