@@ -62,6 +62,10 @@ $firefoxUrl = "https://ftp.mozilla.org/pub/firefox/releases/43.0.1/win32/en-US/F
 # The 32-bit offline installer is resolved live from Oracle's public
 # java.com download endpoint (no login required) in Get-OracleJreUrl.
 $javaManualPage = "https://www.java.com/en/download/manual.jsp"
+# Pinned Oracle Java 8 installer (the exact version the DSC applet needs, e.g.
+# 8u231). Hosted on the deployer's own storage. Used when no installer is
+# bundled next to setup.bat. Any 'dl=0' is forced to 'dl=1' for direct download.
+$javaPinnedUrl = "https://www.dropbox.com/scl/fi/zdjmkskazpfm25sptmeoo/jre-8u231-windows-i586.exe?rlkey=socjfy3dsxw9n8zki7qyp0u85&dl=0"
 
 # --- Paths ---
 $firefoxInstaller = Join-Path $env:TEMP "FirefoxSetup-43.0.1.exe"
@@ -369,7 +373,11 @@ Show-SectionHeader "CHECKING FOR CONFLICTING VERSIONS"
 $targetFFVer = "43.0.1"
 $bundledInstaller = Get-ChildItem $scriptDir -Filter "jre-8u*-windows-i586.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
 $targetJavaUpdate = $null
-if ($bundledInstaller -and $bundledInstaller.Name -match 'jre-8u(\d+)-') { $targetJavaUpdate = $Matches[1] }
+if ($bundledInstaller -and $bundledInstaller.Name -match 'jre-8u(\d+)-') {
+    $targetJavaUpdate = $Matches[1]
+} elseif ($javaPinnedUrl -and $javaPinnedUrl -match 'jre-8u(\d+)-') {
+    $targetJavaUpdate = $Matches[1]
+}
 
 $allInstalls = Get-UninstallEntries
 $ffInstalls  = $allInstalls | Where-Object { $_.Name -match 'Mozilla Firefox' }
@@ -647,9 +655,12 @@ Show-SectionHeader "STEP 3: JAVA 8 (ORACLE JRE, 32-BIT)"
 $localJre = Get-ChildItem $scriptDir -Filter "jre-8u*-windows-i586.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
 $bundledVer = $null
 if ($localJre -and $localJre.Name -match 'jre-8u(\d+)-') { $bundledVer = $Matches[1] }
-$bundledInstalled = $false
-if ($bundledVer) {
-    $bundledInstalled = Test-Path "C:\Program Files (x86)\Java\jre1.8.0_$bundledVer\bin\plugin2\npjp2.dll"
+
+# Is our target version (from bundled file OR pinned URL, = $targetJavaUpdate)
+# already installed with its browser plugin? Then skip re-installing.
+$targetInstalled = $false
+if ($targetJavaUpdate) {
+    $targetInstalled = Test-Path "C:\Program Files (x86)\Java\jre1.8.0_$targetJavaUpdate\bin\plugin2\npjp2.dll"
 }
 
 $existingPlugin = $null
@@ -657,9 +668,9 @@ if (Test-Path $javaRoot) {
     $existingPlugin = Get-ChildItem $javaRoot -Recurse -Filter "npjp2.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
 }
 
-if ($localJre -and $bundledInstalled) {
-    Show-Step -Number 3 -Text "Oracle Java 8u$bundledVer already installed" -Status "skip"
-    $results["Java 8 (Oracle 8u$bundledVer) Install"] = "SKIP"
+if ($targetJavaUpdate -and $targetInstalled) {
+    Show-Step -Number 3 -Text "Oracle Java 8u$targetJavaUpdate already installed" -Status "skip"
+    $results["Java 8 (Oracle 8u$targetJavaUpdate) Install"] = "SKIP"
 } elseif ($localJre) {
     Show-Step -Number 3 -Text "Installing bundled $($localJre.Name)..." -Status "running"
     Write-Host "      ${DIM}Installing Oracle Java 8u$bundledVer from bundled installer...${RESET}"
@@ -671,13 +682,33 @@ if ($localJre -and $bundledInstalled) {
         Show-Step -Number 3 -Text "Oracle Java 8u$bundledVer installation failed" -Status "fail"
         $results["Java 8 (Oracle 8u$bundledVer) Install"] = "FAIL"
     }
+} elseif ($javaPinnedUrl) {
+    # Download the pinned Java version from the deployer's storage (e.g. Dropbox).
+    $verLabel = if ($targetJavaUpdate) { "8u$targetJavaUpdate" } else { "8" }
+    Show-Step -Number 3 -Text "Downloading pinned Oracle Java $verLabel..." -Status "running"
+    $pinUrl = $javaPinnedUrl
+    if ($pinUrl -match 'dl=0') { $pinUrl = $pinUrl -replace 'dl=0','dl=1' }
+    elseif ($pinUrl -notmatch 'dl=1') { $pinUrl += $(if ($pinUrl -match '\?') { '&dl=1' } else { '?dl=1' }) }
+    $dlResult = Download-WithProgress -Url $pinUrl -OutFile $javaInstaller -DisplayName "Oracle Java $verLabel (32-bit)"
+    if ($dlResult) {
+        Write-Host "      ${DIM}Installing Oracle Java $verLabel silently (this may take a minute)...${RESET}"
+        $ok = Install-OracleJre -Installer $javaInstaller
+        if ($ok) {
+            Show-Step -Number 3 -Text "Oracle Java $verLabel installed (with browser plugin)" -Status "done"
+            $results["Java 8 (Oracle $verLabel) Install"] = "OK"
+        } else {
+            Show-Step -Number 3 -Text "Oracle Java $verLabel installation failed" -Status "fail"
+            $results["Java 8 (Oracle $verLabel) Install"] = "FAIL"
+        }
+    } else {
+        Show-Step -Number 3 -Text "Java download from pinned URL failed" -Status "fail"
+        $results["Java 8 (Oracle $verLabel) Install"] = "FAIL"
+    }
 } elseif ($existingPlugin) {
     Show-Step -Number 3 -Text "Oracle Java 8 (with browser plugin) already installed" -Status "skip"
     $results["Java 8 (Oracle) Install"] = "SKIP"
 } else {
-    Write-Host "      ${YELLOW}No bundled jre-8u*-windows-i586.exe found; downloading latest Oracle Java 8.${RESET}"
-    Write-Host "      ${DIM}NOTE: if your portal needs a specific version (e.g. 8u231), place${RESET}"
-    Write-Host "      ${DIM}jre-8u231-windows-i586.exe next to setup.bat and re-run.${RESET}"
+    Write-Host "      ${YELLOW}No bundled/pinned installer; downloading latest Oracle Java 8.${RESET}"
     Show-Step -Number 3 -Text "Locating Oracle Java 8 (32-bit) download..." -Status "running"
     $javaUrl = Get-OracleJreUrl
     if (-not $javaUrl) {
