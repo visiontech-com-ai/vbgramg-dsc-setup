@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5B05ZTZHYR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5B05ZTZHYR');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NREGA & VBGRAMG Java + Firefox Setup - Digital Signature Tool | Vision Technologies</title>
     <meta name="description" content="One-click setup tool for NREGA and VBGRAMG digital signature. Downloads and installs Java 8 and Firefox 43 with auto-update disabled. Free tool by Vision Technologies and Robotics.">
@@ -873,6 +881,23 @@
                 });
                 btn.style.opacity = '0.65';
             }
+        })();
+
+        // ---- Track download clicks in Google Analytics (GA4) ----
+        (function () {
+            function track(name, ext) {
+                if (typeof gtag === 'function') {
+                    gtag('event', 'file_download', {
+                        file_name: name,
+                        file_extension: ext,
+                        item_id: ext === 'exe' ? 'offline_installer' : 'setup_tool'
+                    });
+                }
+            }
+            var bat = document.querySelector('.download-options .btn-download:not(#exeBtn)');
+            if (bat) { bat.addEventListener('click', function () { track('setup.bat', 'bat'); }); }
+            var exe = document.getElementById('exeBtn');
+            if (exe) { exe.addEventListener('click', function () { if (exe.getAttribute('href') !== '#') { track('VBGRAMG-DSC-Setup.exe', 'exe'); } }); }
         })();
 
         // ---- Live download counter (GitHub release asset download_count) ----
