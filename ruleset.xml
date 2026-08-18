@@ -1,0 +1,22 @@
+<ruleset version="1.0+">
+  <rule>
+    <id location="https://vbgramgweb1.dord.gov.in" />
+    <action permission="run" />
+  </rule>
+  <rule>
+    <id location="https://vbgramgweb2.dord.gov.in" />
+    <action permission="run" />
+  </rule>
+  <rule>
+    <id location="https://vbgramg.dord.gov.in" />
+    <action permission="run" />
+  </rule>
+  <rule>
+    <id location="https://nrega.nic.in" />
+    <action permission="run" />
+  </rule>
+  <rule>
+    <id location="https://nregasp2.nic.in" />
+    <action permission="run" />
+  </rule>
+</ruleset>

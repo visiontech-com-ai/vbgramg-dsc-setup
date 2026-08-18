@@ -797,6 +797,34 @@ if (Test-Path $exceptionSrc) {
 }
 Show-Step -Number 4 -Text "Exception site list deployed" -Status "done"
 
+# Deployment Rule Set: makes applets from the government portals run WITHOUT
+# the "Do you want to run this application?" security prompt. The signed
+# DeploymentRuleSet.jar goes in the system deployment folder; its signing
+# certificate is trusted in each installed JRE so Java honours the rules.
+$drsSrc  = Join-Path $scriptDir "DeploymentRuleSet.jar"
+$certSrc = Join-Path $scriptDir "VBGRAMG-DRS.cer"
+if ((Test-Path $drsSrc) -and (Test-Path $certSrc)) {
+    Write-Host "      ${DIM}Deploying Java Deployment Rule Set (suppresses the run prompt)...${RESET}"
+    try {
+        Copy-Item $drsSrc (Join-Path $deployConfigDir "DeploymentRuleSet.jar") -Force
+        $jreDirs = Get-ChildItem $javaRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'jre' }
+        $imported = 0
+        foreach ($jre in $jreDirs) {
+            $kt = Join-Path $jre.FullName "bin\keytool.exe"
+            $cacerts = Join-Path $jre.FullName "lib\security\cacerts"
+            if ((Test-Path $kt) -and (Test-Path $cacerts)) {
+                cmd /c "`"$kt`" -delete -alias vbgramgdrs -keystore `"$cacerts`" -storepass changeit" 2>$null | Out-Null
+                cmd /c "`"$kt`" -importcert -alias vbgramgdrs -keystore `"$cacerts`" -storepass changeit -file `"$certSrc`" -noprompt" 2>$null | Out-Null
+                $imported++
+            }
+        }
+        Show-Step -Number 4 -Text "Run-prompt suppressed via Deployment Rule Set ($imported JRE trusted)" -Status "done"
+        $results["Java Run-Prompt Suppressed"] = "OK"
+    } catch {
+        Show-Step -Number 4 -Text "Deployment Rule Set (could not deploy, skipped)" -Status "skip"
+    }
+}
+
 # Disable Java auto-update via registry
 Write-Host "      ${DIM}Disabling Java auto-update...${RESET}"
 $javaUpdatePath = "HKLM:\SOFTWARE\WOW6432Node\JavaSoft\Java Update\Policy"
