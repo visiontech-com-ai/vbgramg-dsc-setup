@@ -1,4 +1,4 @@
-# VBGRAMG DSC Setup — NREGA & VBGRAMG Java + Firefox Digital Signature Tool
+# VBGRAMG DSC Setup — NREGA & VBGRAMG Java + Firefox Digital Signature Tool 
 
 One-click setup tool that installs **Java 8 (32-bit)** and **Firefox 43.0.1 (32-bit)** with auto-update permanently disabled — for NREGA, VBGRAMG, and other Indian government digital signature portals.
 
