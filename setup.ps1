@@ -508,6 +508,17 @@ if (Test-Path $firefoxDir) {
     Copy-Item (Join-Path $scriptDir "local-settings.js") (Join-Path $prefDir "local-settings.js") -Force
     Show-Step -Number 2 -Text "local-settings.js deployed" -Status "done"
 
+    # Deploy toolbar bookmarks via distribution.ini (adds "1st Sign" / "2nd Sign"
+    # to the Bookmarks Toolbar of any fresh Firefox profile).
+    $distSrc = Join-Path $scriptDir "distribution.ini"
+    if (Test-Path $distSrc) {
+        Write-Host "      ${DIM}Deploying toolbar bookmarks (distribution.ini)...${RESET}"
+        $distDir = Join-Path $firefoxDir "distribution"
+        if (-not (Test-Path $distDir)) { New-Item -ItemType Directory -Path $distDir -Force | Out-Null }
+        Copy-Item $distSrc (Join-Path $distDir "distribution.ini") -Force
+        Show-Step -Number 2 -Text "Toolbar bookmarks (1st Sign / 2nd Sign) deployed" -Status "done"
+    }
+
     # Layer 3: Disable Mozilla Maintenance Service
     Write-Host "      ${DIM}Layer 3/5: Disabling Mozilla Maintenance Service...${RESET}"
     try {
@@ -591,6 +602,15 @@ if (Test-Path $firefoxDir) {
     try {
         $dscProfile = Join-Path $env:LOCALAPPDATA "VBGRAMG-DSC-FF43"
         if (-not (Test-Path $dscProfile)) { New-Item -ItemType Directory -Path $dscProfile -Force | Out-Null }
+
+        # Force the Bookmarks Toolbar visible in the DSC profile (Firefox 43
+        # hides it by default) so the "1st Sign" / "2nd Sign" bookmarks show.
+        # Only seed it if the profile is brand new (no places.sqlite yet), so we
+        # don't clobber a profile the user has already customised.
+        if (-not (Test-Path (Join-Path $dscProfile "places.sqlite"))) {
+            $xulStore = '{"chrome://browser/content/browser.xul":{"PersonalToolbar":{"collapsed":"false"}}}'
+            Set-Content -Path (Join-Path $dscProfile "xulstore.json") -Value $xulStore -Encoding ASCII
+        }
 
         $launchDir = Join-Path $env:LOCALAPPDATA "VBGRAMG-DSC"
         if (-not (Test-Path $launchDir)) { New-Item -ItemType Directory -Path $launchDir -Force | Out-Null }
