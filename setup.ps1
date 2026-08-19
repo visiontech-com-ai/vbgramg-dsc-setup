@@ -866,7 +866,24 @@ try {
     }
 } catch {}
 
-Show-Step -Number 4 -Text "Java auto-update disabled" -Status "done"
+# Stop the Java Update Scheduler (jusched.exe) - this is what pops the
+# "Java Update Available" balloon. Remove its auto-start entry and kill it.
+try {
+    foreach ($runKey in @("HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+                          "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run")) {
+        if (Test-Path $runKey) {
+            Remove-ItemProperty -Path $runKey -Name "SunJavaUpdateSched" -ErrorAction SilentlyContinue
+        }
+    }
+    Get-Process jusched -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+} catch {}
+
+# Also suppress the "your Java is out of date / expired" prompt at the system
+# level (already in deployment.properties, re-assert the update policy keys).
+Set-ItemProperty -Path $javaUpdatePath   -Name "NotifyInstall"        -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $javaUpdatePath32 -Name "NotifyDownload"       -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+
+Show-Step -Number 4 -Text "Java auto-update + update scheduler disabled" -Status "done"
 $results["Java Security Config"] = "OK"
 
 # ============================================================================
