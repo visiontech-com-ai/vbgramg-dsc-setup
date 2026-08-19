@@ -797,31 +797,46 @@ if (Test-Path $exceptionSrc) {
 }
 Show-Step -Number 4 -Text "Exception site list deployed" -Status "done"
 
-# Deployment Rule Set: makes applets from the government portals run WITHOUT
-# the "Do you want to run this application?" security prompt. The signed
-# DeploymentRuleSet.jar goes in the system deployment folder; its signing
-# certificate is trusted in each installed JRE so Java honours the rules.
+# Deployment Rule Set: OPTIONAL, and OFF by default.
+# It can suppress the Java "Do you want to run this application?" prompt, BUT if
+# the Java actually running is not the exact version we pin (e.g. a pre-existing
+# 8u471), Java cannot verify the self-signed rule-set jar and then BLOCKS the
+# applet entirely ("Can not verify self-signed Deployment Rule Set jar"). The
+# Exception Site List already lets the applet run (with a one-time accept
+# prompt), so by default we do NOT deploy the rule set - and we REMOVE any
+# previously-deployed one so re-running this setup fixes a blocked PC.
+# Advanced deployers who pin the Java version can opt in by placing a file named
+# "enable-drs.txt" next to setup.bat.
 $drsSrc  = Join-Path $scriptDir "DeploymentRuleSet.jar"
 $certSrc = Join-Path $scriptDir "VBGRAMG-DRS.cer"
-if ((Test-Path $drsSrc) -and (Test-Path $certSrc)) {
-    Write-Host "      ${DIM}Deploying Java Deployment Rule Set (suppresses the run prompt)...${RESET}"
+$drsInstalled = Join-Path $deployConfigDir "DeploymentRuleSet.jar"
+if ((Test-Path (Join-Path $scriptDir "enable-drs.txt")) -and (Test-Path $drsSrc) -and (Test-Path $certSrc)) {
+    Write-Host "      ${DIM}Deploying Java Deployment Rule Set (opt-in)...${RESET}"
     try {
-        Copy-Item $drsSrc (Join-Path $deployConfigDir "DeploymentRuleSet.jar") -Force
-        $jreDirs = Get-ChildItem $javaRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'jre' }
+        Copy-Item $drsSrc $drsInstalled -Force
+        $jreDirs = Get-ChildItem $javaRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'jre|jdk' }
         $imported = 0
         foreach ($jre in $jreDirs) {
             $kt = Join-Path $jre.FullName "bin\keytool.exe"
             $cacerts = Join-Path $jre.FullName "lib\security\cacerts"
             if ((Test-Path $kt) -and (Test-Path $cacerts)) {
                 cmd /c "`"$kt`" -delete -alias vbgramgdrs -keystore `"$cacerts`" -storepass changeit" 2>$null | Out-Null
-                cmd /c "`"$kt`" -importcert -alias vbgramgdrs -keystore `"$cacerts`" -storepass changeit -file `"$certSrc`" -noprompt" 2>$null | Out-Null
+                cmd /c "`"$kt`" -importcert -trustcacerts -alias vbgramgdrs -keystore `"$cacerts`" -storepass changeit -file `"$certSrc`" -noprompt" 2>$null | Out-Null
                 $imported++
             }
         }
-        Show-Step -Number 4 -Text "Run-prompt suppressed via Deployment Rule Set ($imported JRE trusted)" -Status "done"
-        $results["Java Run-Prompt Suppressed"] = "OK"
+        Show-Step -Number 4 -Text "Deployment Rule Set deployed ($imported JRE trusted)" -Status "done"
     } catch {
         Show-Step -Number 4 -Text "Deployment Rule Set (could not deploy, skipped)" -Status "skip"
+    }
+} else {
+    # Default path: make sure no rule set is present (it would block applets on a
+    # Java version whose trust store lacks our certificate).
+    if (Test-Path $drsInstalled) {
+        Remove-Item $drsInstalled -Force -ErrorAction SilentlyContinue
+        Show-Step -Number 4 -Text "Removed Deployment Rule Set (applet runs via Exception Site List)" -Status "done"
+    } else {
+        Show-Step -Number 4 -Text "No Deployment Rule Set (applet runs via Exception Site List)" -Status "skip"
     }
 }
 
